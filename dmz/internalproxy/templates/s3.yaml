@@ -13,7 +13,7 @@ spec:
       kind: Rule
       services:
         - name: unraid
-          port: 9768
+          port: 9769
           scheme: http
   tls:
     secretName: s3-tls
@@ -47,7 +47,7 @@ spec:
       kind: Rule
       services:
         - name: unraid
-          port: 9768
+          port: 9769
           scheme: http
   tls:
     secretName: s3-external-tls
