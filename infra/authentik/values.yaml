@@ -34,7 +34,7 @@ authentik:
     enabled: true
     image:
       registry: registry.durp.info
-      repository: bitnamilegacy/postgresql
+      repository: library/postgres
       pullPolicy: Always
     postgresqlUsername: "authentik"
     postgresqlDatabase: "authentik"
@@ -52,7 +52,7 @@ authentik:
         enabled: false
     image:
       registry: registry.durp.info
-      repository: bitnamilegacy/redis
+      repository: library/redis
       pullPolicy: Always
     architecture: standalone
     auth:
