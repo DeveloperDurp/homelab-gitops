@@ -1,22 +1,22 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: redlib
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-    targetRevision: main
-    path: dmz/redlib
-    directory:
-      recurse: true
-  destination:
-    name: dmz
-    namespace: redlib
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: redlib
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+#    targetRevision: main
+#    path: dmz/redlib
+#    directory:
+#      recurse: true
+#  destination:
+#    name: dmz
+#    namespace: redlib
+#  syncPolicy:
+#    automated:
+#      prune: true
+#      selfHeal: true
+#    syncOptions:
+#      - CreateNamespace=true
