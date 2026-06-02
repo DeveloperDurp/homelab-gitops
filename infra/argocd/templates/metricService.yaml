@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metrics-server
+  name: metrics-server-dev
   namespace: argocd
 spec:
   project: default
@@ -16,7 +16,6 @@ spec:
         - name: args[1]
           value: --kubelet-preferred-address-types=InternalIP
   destination:
-    # This should match the server URL of your 'dev' cluster in ArgoCD
     server: 'https://kube.dev.durp.loc:6443'
     namespace: kube-system
   syncPolicy:
