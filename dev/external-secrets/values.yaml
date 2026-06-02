@@ -3,6 +3,10 @@ external-secrets:
   revisionHistoryLimit: 1
   leaderElect: true
 
+  serviceAccount:
+    create: true
+    name: "external-secrets"
+
   installCRDs: true
   crds:
     createClusterExternalSecret: true
