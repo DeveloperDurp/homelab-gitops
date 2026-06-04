@@ -42,27 +42,26 @@ spec:
     syncOptions:
       - CreateNamespace=true 
 
-#---
-#
-#apiVersion: argoproj.io/v1alpha1
-#kind: Application
-#metadata:
-#  name: cert-manager-dev
-#  namespace: argocd
-#spec:
-#  project: default
-#  source:
-#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-#    targetRevision: main
-#    path: dev/cert-manager
-#  destination:
-#    namespace: cert-manager
-#    name: dev
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfHeal: true
-#    syncOptions:
-#      - CreateNamespace=true
-#
-#
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: dev/cert-manager
+  destination:
+    namespace: cert-manager
+    name: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
