@@ -2,7 +2,7 @@ cert-manager:
   crds:
     enabled: true
   image:
-    registry: registry.internal.durp.info
+    registry: registry.durp.info
     repository: jetstack/cert-manager-controller
     pullPolicy: Always
   replicaCount: 3
