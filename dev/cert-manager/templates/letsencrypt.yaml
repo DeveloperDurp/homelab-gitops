@@ -29,8 +29,6 @@ spec:
       kubernetes:
         mountPath: /v1/auth/dev
         role: pki-issuer-role
-        serviceAccountRef:
-          name: vault-issuer
         secretRef:
           name: vault-issuer-token
           key: token
