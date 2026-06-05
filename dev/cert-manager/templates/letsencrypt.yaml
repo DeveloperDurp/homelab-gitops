@@ -28,7 +28,7 @@ spec:
     path: pki/sign/durp-info
     auth:
       kubernetes:
-        mountPath: /v1/auth/dev
+        mountPath: /v1/auth/dev-cluster
         role: pki-issuer-role
         secretRef:
           name: vault-issuer-token
