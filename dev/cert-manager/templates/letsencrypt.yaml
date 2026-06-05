@@ -33,5 +33,5 @@ spec:
         serviceAccountRef:
           name: vault-issuer
         secretRef:
-          name: issuer-token-lmzpj
+          name: vault-issuer-token
           key: token
