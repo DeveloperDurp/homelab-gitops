@@ -1,0 +1,8 @@
+nfs-subdir-external-provisioner:
+  nfs:
+    server: unraid.dev.durp.loc
+    path: /mnt/user/talos-dev
+  storageClass:
+    name: nfs-client
+    defaultClass: true
+    reclaimPolicy: Retain
