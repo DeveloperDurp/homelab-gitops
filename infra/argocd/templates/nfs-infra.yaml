@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nfs-infra
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: infra/nfs-provisioner
+  destination:
+    namespace: kube-system
+    name: infra
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
