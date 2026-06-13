@@ -1,0 +1,69 @@
+# Inventory of Applications managed by Hermes
+# This file is automatically updated by the Hermes agent.
+
+environments:
+  infra:
+    - name: argocd
+      description: GitOps continuous delivery tool for Kubernetes
+      status: installed
+    - name: authentik
+      description: Identity provider
+      status: installed
+    - name: bitwarden
+      description: Password manager
+      status: installed
+    - name: cert-manager
+      description: X.509 certificate management
+      status: installed
+    - name: external-secrets
+      description: External Secrets Operator
+      status: installed
+    - name: istio-system
+      description: Service Mesh
+      status: installed
+    - name: kube-prometheus-stack
+      description: Monitoring and alerting
+      status: installed
+    - name: litellm
+      description: Proxy to multiple LLMs
+      status: installed
+    - name: longhorn
+      description: Distributed block storage
+      status: installed
+    - name: nfs-provisioner
+      description: Dynamic NFS provisioner
+      status: installed
+    - name: openclarity
+      description: Cloud-native security observability
+      status: installed
+    - name: portainer
+      description: Container management UI
+      status: installed
+    - name: renovate
+      description: Dependency update tool
+      status: installed
+    - name: traefik
+      description: Ingress controller
+      status: installed
+    - name: vault
+      description: Secret management
+      status: installed
+  dmz:
+    - name: authentik
+      status: installed
+    - name: gitlab-runner
+      status: installed
+    - name: istio-system
+      status: installed
+    - name: longhorn
+      status: installed
+    - name: traefik
+      status: installed
+  dev:
+    - name: cert-manager
+      status: installed
+    - name: traefik
+      status: installed
+  prd:
+    - name: traefik
+      status: installed

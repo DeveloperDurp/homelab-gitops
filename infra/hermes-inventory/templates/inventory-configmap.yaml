@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-app-inventory
+  namespace: argocd
+  annotations:
+    hermes.durp.info/managed: "true"
+data:
+  inventory.yaml: |
+    {{- .Values.environments | toYaml | nindent 4 }}
+  last_updated: "{{ now | date \"2006-01-02T15:04:05Z\" }}"
