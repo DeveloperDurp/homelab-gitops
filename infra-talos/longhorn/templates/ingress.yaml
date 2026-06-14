@@ -1,34 +1,36 @@
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: longhorn-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: vault-issuer
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`longhorn.infra.durp.info`) && PathPrefix(`/`)
-      kind: Rule
-      middlewares:
-        #- name: authentik-proxy-provider
-        #  namespace: traefik
-      services:
-        - name: longhorn-frontend
-          port: 80
-  tls:
-    secretName: longhorn-tls
+#apiVersion: traefik.io/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: longhorn-ingress
+#  annotations:
+#    cert-manager.io/cluster-issuer: vault-issuer
+#spec:
+#  entryPoints:
+#    - websecure
+#  routes:
+#    - match: Host(`longhorn.infra.durp.info`) && PathPrefix(`/`)
+#      kind: Rule
+#      middlewares:
+#        #- name: authentik-proxy-provider
+#        #  namespace: traefik
+#      services:
+#        - name: longhorn-frontend
+#          port: 80
+#  tls:
+#    secretName: longhorn-tls
+#
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+#  name: longhorn-tls
+#spec:
+#  secretName: longhorn-tls
+#  issuerRef:
+#    name: vault-issuer
+#    kind: ClusterIssuer
+#  commonName: "longhorn.infra.durp.info"
+#  dnsNames:
+#    - "longhorn.infra.durp.info"
 
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: longhorn-tls
-spec:
-  secretName: longhorn-tls
-  issuerRef:
-    name: vault-issuer
-    kind: ClusterIssuer
-  commonName: "longhorn.infra.durp.info"
-  dnsNames:
-    - "longhorn.infra.durp.info"
+null
