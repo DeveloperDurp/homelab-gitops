@@ -1,0 +1,192 @@
+longhorn: 
+  global:
+    cattle:
+      systemDefaultRegistry: ""
+  
+  image:
+    longhorn:
+      engine:
+        repository: longhornio/longhorn-engine
+      manager:
+        repository: longhornio/longhorn-manager
+      ui:
+        repository: longhornio/longhorn-ui
+      instanceManager:
+        repository: longhornio/longhorn-instance-manager
+      shareManager:
+        repository: longhornio/longhorn-share-manager
+      backingImageManager:
+        repository: longhornio/backing-image-manager
+    csi:
+      attacher:
+        repository: longhornio/csi-attacher
+      provisioner:
+        repository: longhornio/csi-provisioner
+      nodeDriverRegistrar:
+        repository: longhornio/csi-node-driver-registrar
+      resizer:
+        repository: longhornio/csi-resizer
+      snapshotter:
+        repository: longhornio/csi-snapshotter
+    pullPolicy: Always
+  
+  service:
+    ui:
+      type: ClusterIP
+      nodePort: null
+    manager:
+      type: ClusterIP
+      nodePort: ""
+      loadBalancerIP: ""
+      loadBalancerSourceRanges: ""
+  
+  persistence:
+    defaultClass: true
+    defaultFsType: ext4
+    defaultClassReplicaCount: 3
+    defaultDataLocality: disabled # best-effort otherwise
+    reclaimPolicy: Delete
+    migratable: false
+    recurringJobSelector:
+      enable: true
+      jobList: '[
+          {
+            "name":"backup", 
+            "task":"backup", 
+            "cron":"0 0 * * *", 
+            "retain":24
+          }
+        ]'
+    backingImage:
+      enable: false
+      name: ~
+      dataSourceType: ~
+      dataSourceParameters: ~
+      expectedChecksum: ~
+  
+  csi:
+    kubeletRootDir: ~
+    attacherReplicaCount: ~
+    provisionerReplicaCount: ~
+    resizerReplicaCount: ~
+    snapshotterReplicaCount: ~
+  
+  defaultSettings:
+    backupTarget: S3://longhorn-master@us-east-1/
+    backupTargetCredentialSecret: longhorn-backup-token-secret
+    allowRecurringJobWhileVolumeDetached: ~
+    createDefaultDiskLabeledNodes: ~
+    defaultDataPath: ~
+    defaultDataLocality: ~
+    replicaSoftAntiAffinity: ~
+    replicaAutoBalance: ~
+    storageOverProvisioningPercentage: ~
+    storageMinimalAvailablePercentage: ~
+    upgradeChecker: ~
+    defaultReplicaCount: ~
+    defaultLonghornStaticStorageClass: longhorn
+    backupstorePollInterval: ~
+    taintToleration: ~
+    systemManagedComponentsNodeSelector: ~
+    priorityClass: ~
+    autoSalvage: ~
+    autoDeletePodWhenVolumeDetachedUnexpectedly: ~
+    disableSchedulingOnCordonedNode: ~
+    replicaZoneSoftAntiAffinity: ~
+    nodeDownPodDeletionPolicy: ~
+    allowNodeDrainWithLastHealthyReplica: ~
+    mkfsExt4Parameters: ~
+    disableReplicaRebuild: ~
+    replicaReplenishmentWaitInterval: ~
+    concurrentReplicaRebuildPerNodeLimit: ~
+    disableRevisionCounter: ~
+    systemManagedPodsImagePullPolicy: ~
+    allowVolumeCreationWithDegradedAvailability: ~
+    autoCleanupSystemGeneratedSnapshot: ~
+    concurrentAutomaticEngineUpgradePerNodeLimit: ~
+    backingImageCleanupWaitInterval: ~
+    backingImageRecoveryWaitInterval: ~
+    guaranteedEngineManagerCPU: ~
+    guaranteedReplicaManagerCPU: ~
+    kubernetesClusterAutoscalerEnabled: ~
+    orphanAutoDeletion: ~
+    storageNetwork: ~
+  privateRegistry:
+    createSecret: ~
+    registryUrl: ~
+    registryUser: ~
+    registryPasswd: ~
+    registrySecret: ~
+  
+  longhornManager:
+    priorityClass: ~
+    tolerations: []
+    ## If you want to set tolerations for Longhorn Manager DaemonSet, delete the `[]` in the line above
+    ## and uncomment this example block
+    # - key: "key"
+    #   operator: "Equal"
+    #   value: "value"
+    #   effect: "NoSchedule"
+    nodeSelector: {}
+    ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
+    ## and uncomment this example block
+    #  label-key1: "label-value1"
+    #  label-key2: "label-value2"
+  
+  longhornDriver:
+    priorityClass: ~
+    tolerations: []
+    ## If you want to set tolerations for Longhorn Driver Deployer Deployment, delete the `[]` in the line above
+    ## and uncomment this example block
+    # - key: "key"
+    #   operator: "Equal"
+    #   value: "value"
+    #   effect: "NoSchedule"
+    nodeSelector: {}
+    ## If you want to set node selector for Longhorn Driver Deployer Deployment, delete the `{}` in the line above
+    ## and uncomment this example block
+    #  label-key1: "label-value1"
+    #  label-key2: "label-value2"
+  
+  longhornUI:
+    priorityClass: ~
+    tolerations: []
+    ## If you want to set tolerations for Longhorn UI Deployment, delete the `[]` in the line above
+    ## and uncomment this example block
+    # - key: "key"
+    #   operator: "Equal"
+    #   value: "value"
+    #   effect: "NoSchedule"
+    nodeSelector: {}
+    ## If you want to set node selector for Longhorn UI Deployment, delete the `{}` in the line above
+    ## and uncomment this example block
+    #  label-key1: "label-value1"
+    #  label-key2: "label-value2"
+  
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #
+  
+  ingress:
+    enabled: false
+  
+  ## Specify override namespace, specifically this is useful for using longhorn as sub-chart
+  ## and its release namespace is not the `longhorn-system`
+  namespaceOverride: ""
+  
+  # Annotations to add to the Longhorn Manager DaemonSet Pods. Optional.
+  annotations: {}
+  
+  serviceAccount:
+    # Annotations to add to the service account
+    annotations: {}
+  
