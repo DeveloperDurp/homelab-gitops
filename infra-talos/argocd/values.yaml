@@ -1,0 +1,64 @@
+argo-cd:
+  global:
+    revisionHistoryLimit: 1
+    image:
+      repository: registry.durp.info/argoproj/argocd
+      imagePullPolicy: Always
+
+  #server:
+  #extraArgs:
+  #  - --dex-server-plaintext
+  #  - --dex-server=argocd-dex-server:5556
+  # oidc.config: |
+  #   name: AzureAD
+  #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0
+  #   clientID: CLIENT_ID
+  #   clientSecret: $oidc.azuread.clientSecret
+  #   requestedIDTokenClaims:
+  #     groups:
+  #       essential: true
+  #   requestedScopes:
+  #     - openid
+  #     - profile
+  #     - email
+
+  dex:
+    enabled: true
+    image:
+      repository: registry.durp.info/dexidp/dex
+      imagePullPolicy: Always
+
+  configs:
+    cm:
+      create: true
+      annotations: {}
+      url: https://argocd.infra.durp.info
+      oidc.tls.insecure.skip.verify: "true"
+      accounts.provider-argocd: apiKey
+      dex.config: |
+        connectors:
+          - config:
+              issuer: https://authentik.durp.info/application/o/argocd/
+              clientID: dbb8ffc06104fb6e7fac3e4ae7fafb1d90437625
+              clientSecret: $client-secret:clientSecret
+              insecureEnableGroups: true
+              scopes:
+                - openid
+                - profile
+                - email
+                - groups
+            name: authentik
+            type: oidc
+            id: authentik
+      resource.exclusions: ""
+
+    rbac:
+      create: true
+      policy.csv: |
+        g, ArgoCD Admins, role:admin
+        g, provider-argocd, role:admin
+      scopes: "[groups]"
+
+  server:
+    route:
+      enabled: false

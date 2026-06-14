@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: infra-talos/argocd
+  destination:
+    namespace: argocd
+    name: in-cluster
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+#---
+#
+#apiVersion: external-secrets.io/v1
+#kind: ExternalSecret
+#metadata:
+#  name: vault-argocd
+#  labels:
+#    app.kubernetes.io/part-of: argocd
+#spec:
+#  secretStoreRef:
+#    name: vault
+#    kind: ClusterSecretStore
+#  target:
+#    name: client-secret
+#  data:
+#  - secretKey: clientSecret
+#    remoteRef:
+#      key: kv/authentik/argocd
+#      property: clientsecret
+#
+#---
+#
+#apiVersion: traefik.io/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: argocd-ingress
+#spec:
+#  entryPoints:
+#    - websecure
+#  routes:
+#    - match: Host(`argocd.infra.durp.info`)
+#      #middlewares:
+#      #  - name: whitelist
+#      #    namespace: traefik
+#      kind: Rule
+#      services:
+#        - name: argocd-server
+#          port: 443
+#          scheme: https
+#  tls:
+#    secretName: argocd-tls
+#
+#---
+#
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+#  name: argocd-tls
+#spec:
+#  secretName: argocd-tls
+#  issuerRef:
+#    name: vault-issuer
+#    kind: ClusterIssuer
+#  commonName: "argocd.infra.durp.info"
+#  dnsNames:
+#    - "argocd.infra.durp.info"
+#
+#---
+#
+#apiVersion: v1
+#kind: ServiceAccount
+#metadata:
+#  name: vault
+#
