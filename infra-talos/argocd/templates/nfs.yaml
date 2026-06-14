@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nfs-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: infra-talos/nfs-provisioner
+  destination:
+    namespace: kube-system
+    name: in-cluster
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+#---
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: nfs-dev
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+#    targetRevision: main
+#    path: dev/nfs-provisioner
+#  destination:
+#    namespace: kube-system
+#    name: dev
+#  syncPolicy:
+#    automated:
+#      prune: true
+#      selfHeal: true
+#    syncOptions:
+#      - CreateNamespace=true

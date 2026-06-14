@@ -1,0 +1,58 @@
+traefik:
+  image:
+    #    registry: registry.durp.info
+    #    repository: traefik
+    pullPolicy: Always
+
+  providers:
+    kubernetesCRD:
+      allowCrossNamespace: true
+      allowExternalNameServices: true
+      allowEmptyServices: false
+
+  deployment:
+    replicas: 3
+    revisionHistoryLimit: 1
+
+  # volumes:
+  #   - name: traefik-configmap
+  #     mountPath: "/config"
+  #     type: configMap
+
+  ingressRoute:
+    dashboard:
+      enabled: true
+
+  additionalArguments:
+    #  - "--providers.file.filename=/config/config.yml"
+    - "--serversTransport.insecureSkipVerify=true"
+    - "--log.level=DEBUG"
+    - --experimental.plugins.jwt.moduleName=github.com/traefik-plugins/traefik-jwt-plugin
+    - --experimental.plugins.jwt.version=v0.7.0
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+
+  # -- [Resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for `traefik` container.
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+    limits:
+      memory: "512Mi"
