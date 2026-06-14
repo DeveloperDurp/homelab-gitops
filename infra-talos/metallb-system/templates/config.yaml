@@ -1,0 +1,17 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: cheap
+spec:
+  addresses:
+    - 192.168.12.130-192.168.12.140
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: pool
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - cheap
+

@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra/traefik
+    path: infra-talos/traefik
   destination:
     namespace: traefik
     name: in-cluster
