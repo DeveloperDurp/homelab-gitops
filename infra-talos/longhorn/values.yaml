@@ -72,8 +72,6 @@ longhorn:
     snapshotterReplicaCount: ~
   
   defaultSettings:
-    backupTarget: S3://longhorn-master@us-east-1/
-    backupTargetCredentialSecret: longhorn-backup-token-secret
     allowRecurringJobWhileVolumeDetached: ~
     createDefaultDiskLabeledNodes: ~
     defaultDataPath: ~
@@ -111,6 +109,12 @@ longhorn:
     kubernetesClusterAutoscalerEnabled: ~
     orphanAutoDeletion: ~
     storageNetwork: ~
+  
+  defaultBackupStore:
+    backupTarget: S3://longhorn-master@us-east-1/
+    backupTargetCredentialSecret: longhorn-backup-token-secret
+    pollInterval: 300
+  
   privateRegistry:
     createSecret: ~
     registryUrl: ~
