@@ -123,3 +123,46 @@ metadata:
 spec:
   type: ExternalName
   externalName: durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pages-gitlab-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`pages.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 9443
+          scheme: https
+  tls:
+    secretName: pages-gitlab-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pages-gitlab-tls
+spec:
+  secretName: pages-gitlab-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "pages.durp.info"
+  dnsNames:
+    - "pages.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pages-gitlab-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: pages.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
