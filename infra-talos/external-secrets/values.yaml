@@ -57,7 +57,7 @@ external-secrets:
   #        cpu: 10m
 
   certController:
-    create: false
+    create: true
     revisionHistoryLimit: 1
     log:
       level: debug
