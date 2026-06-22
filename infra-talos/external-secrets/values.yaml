@@ -42,7 +42,7 @@ external-secrets:
   #      cpu: 10m
 
   webhook:
-    enabled: false
+    create: false
     log:
       level: debug
     image:
