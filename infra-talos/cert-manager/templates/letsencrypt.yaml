@@ -30,6 +30,5 @@ spec:
       kubernetes:
         mountPath: /v1/auth/kubernetes
         role: issuer
-        secretRef:
-          name: issuer-token-lmzpj
-          key: token
+        serviceAccountRef:
+          name: vault
