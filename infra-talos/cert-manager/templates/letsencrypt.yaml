@@ -28,7 +28,7 @@ spec:
     path: pki/sign/issue-homelab-certs
     auth:
       kubernetes:
-        mountPath: infra-cluster
+        mountPath: /v1/auth/infra-cluster
         role: issuer
         serviceAccountRef:
           name: vault
