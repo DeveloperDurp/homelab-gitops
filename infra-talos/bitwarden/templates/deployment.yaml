@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: bitwarden
+  name: bitwarden
+  labels:
+    app: bitwarden
+spec:
+  selector:
+    matchLabels:
+      app: bitwarden
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bitwarden
+    spec:
+      containers:
+        - name: bitwarden
+          image: registry.durp.info/vaultwarden/server:1.36.0
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: bitwarden-pvc
+              mountPath: /data
+              subPath: bitwaren-data
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: SIGNUPS_ALLOWED
+              value: "FALSE"
+            - name: INVITATIONS_ALLOWED
+              value: "FALSE"
+            - name: WEBSOCKET_ENABLED
+              value: "TRUE"
+            - name: ROCKET_ENV
+              value: "staging"
+            - name: ROCKET_PORT
+              value: "80"
+            - name: ROCKET_WORKERS
+              value: "10"
+            - name: SECRET_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-secret
+                  key: ADMIN_TOKEN
+      volumes:
+        - name: bitwarden-pvc
+          persistentVolumeClaim:
+            claimName: bitwarden-pvc

@@ -1,0 +1,34 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: authentik-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`authentik.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: authentik-server
+          port: 80
+    - match: Host(`authentik.durp.info`) && PathPrefix(`/outpost.goauthentik.io`)
+      kind: Rule
+      services:
+        - name: ak-outpost-authentik-embedded-outpost
+          port: 9000
+  tls:
+    secretName: authentik-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: authentik-tls
+spec:
+  secretName: authentik-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  commonName: "authentik.durp.info"
+  dnsNames:
+    - "authentik.durp.info"
