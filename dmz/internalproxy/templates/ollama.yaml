@@ -38,8 +38,8 @@ spec:
         - name: ollama-basic-auth
       kind: Rule
       services:
-        - name: ubuntu
-          port: 11435
+        - name: hermes
+          port: 11434
   tls:
     secretName: ollama-tls
 
