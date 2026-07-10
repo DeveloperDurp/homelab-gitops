@@ -2,7 +2,7 @@ argo-cd:
   global:
     revisionHistoryLimit: 1
     image:
-      repository: registry.durp.info/argoproj/argocd
+#      repository: registry.durp.info/argoproj/argocd
       imagePullPolicy: Always
 
   #server:
@@ -25,7 +25,7 @@ argo-cd:
   dex:
     enabled: true
     image:
-      repository: registry.durp.info/dexidp/dex
+#      repository: registry.durp.info/dexidp/dex
       imagePullPolicy: Always
 
   configs:
