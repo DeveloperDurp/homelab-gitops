@@ -23,7 +23,7 @@ spec:
     - match: Host(`authentik.durp.info`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: infra-cluster
+        - name: infra-talos-cluster
           port: 443
   tls:
     secretName: authentik-tls
