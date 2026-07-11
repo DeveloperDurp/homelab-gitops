@@ -9,7 +9,7 @@ spec:
   - match: Host(`bitwarden.durp.info`) && PathPrefix(`/`) 
     kind: Rule
     services:
-    - name: infra-cluster
+    - name: infra-talos-cluster
       port: 443
   tls:
     secretName: bitwarden-tls
