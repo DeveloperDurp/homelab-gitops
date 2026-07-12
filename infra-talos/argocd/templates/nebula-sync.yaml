@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-infra/nebula-sync
+    path: infra-talos/nebula-sync
   destination:
     namespace: nebula-sync
     name: in-cluster
