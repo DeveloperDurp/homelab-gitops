@@ -12,7 +12,7 @@ spec:
           namespace: traefik
       kind: Rule
       services:
-        - name: infra-cluster
+        - name: infra-talos-cluster
           port: 443
           scheme: https
   tls:
