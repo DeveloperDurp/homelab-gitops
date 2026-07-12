@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: nebula-sync
+  name: nebula-sync
+  labels:
+    app: nebula-sync
+spec:
+  selector:
+    matchLabels:
+      app: nebula-sync
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nebula-sync
+    spec:
+      containers:
+      - name: nebula-sync
+        image: registry.durp.info/lovelaze/nebula-sync:latest
+        imagePullPolicy: Always
+        env:
+          - name: PRIMARY
+            valueFrom:
+              secretKeyRef:
+                name: nebula-sync-secret
+                key: primary
+          - name: REPLICAS
+            valueFrom:
+              secretKeyRef:
+                name: nebula-sync-secret
+                key: replicas
+          - name: FULL_SYNC
+            value: "false"
+          - name: RUN_GRAVITY
+            value: "false"
+          - name: CRON
+            value: "*/15 * * * *"
+          - name: CLIENT_SKIP_TLS_VERIFICATION
+            value: "true"
+          - name: TZ
+            value: America/Chicago
+          - name: SYNC_CONFIG_DNS
+            value: "true"
+          - name: SYNC_CONFIG_DHCP
+            value: "true"
+          - name: SYNC_CONFIG_NTP
+            value: "true"
+          - name: SYNC_CONFIG_RESOLVER
+            value: "true"
+          - name: SYNC_CONFIG_DATABASE
+            value: "true"
+          - name: SYNC_CONFIG_MISC
+            value: "true"
+          - name: SYNC_CONFIG_DEBUG
+            value: "true"
+          - name: SYNC_GRAVITY_DHCP_LEASES
+            value: "true"
+          - name: SYNC_GRAVITY_GROUP
+            value: "true"
+          - name: SYNC_GRAVITY_AD_LIST
+            value: "true"
+          - name: SYNC_GRAVITY_AD_LIST_BY_GROUP
+            value: "true"
+          - name: SYNC_GRAVITY_DOMAIN_LIST
+            value: "true"
+          - name: SYNC_GRAVITY_DOMAIN_LIST_BY_GROUP
+            value: "true"
+          - name: SYNC_GRAVITY_CLIENT
+            value: "true"
+          - name: SYNC_GRAVITY_CLIENT_BY_GROUP
+            value: "true"
+

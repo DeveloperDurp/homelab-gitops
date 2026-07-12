@@ -1,45 +1,45 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: authentik
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-    targetRevision: main
-    path: infra/authentik
-  destination:
-    namespace: authentik
-    name: in-cluster
-  syncPolicy:
-    #managedNamespaceMetadata:
-    #  labels:
-    #    istio-injection: enabled
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: authentik-dmz
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-    targetRevision: main
-    path: dmz/authentik
-  destination:
-    namespace: authentik
-    name: dmz
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: authentik
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+#    targetRevision: main
+#    path: infra/authentik
+#  destination:
+#    namespace: authentik
+#    name: in-cluster
+#  syncPolicy:
+#    #managedNamespaceMetadata:
+#    #  labels:
+#    #    istio-injection: enabled
+#    automated:
+#      prune: true
+#      selfHeal: true
+#    syncOptions:
+#      - CreateNamespace=true
+#
+#---
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: authentik-dmz
+#  namespace: argocd
+#spec:
+#  project: default
+#  source:
+#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+#    targetRevision: main
+#    path: dmz/authentik
+#  destination:
+#    namespace: authentik
+#    name: dmz
+#  syncPolicy:
+#    automated:
+#      prune: true
+#      selfHeal: true
+#    syncOptions:
+#      - CreateNamespace=true
