@@ -25,30 +25,58 @@ spec:
     syncOptions:
       - CreateNamespace=true
 
-#---
-#apiVersion: argoproj.io/v1alpha1
-#kind: Application
-#metadata:
-#  name: metrics-server-dev
-#  namespace: argocd
-#spec:
-#  project: default
-#  source:
-#    repoURL: 'https://kubernetes-sigs.github.io/metrics-server/'
-#    chart: metrics-server
-#    targetRevision: 3.12.1
-#    helm:
-#      parameters:
-#        - name: args[0]
-#          value: --kubelet-insecure-tls
-#        - name: args[1]
-#          value: --kubelet-preferred-address-types=InternalIP
-#  destination:
-#    server: 'https://kube.dev.durp.loc:6443'
-#    namespace: kube-system
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfHeal: true
-#    syncOptions:
-#      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server-dmz
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://kubernetes-sigs.github.io/metrics-server/'
+    chart: metrics-server
+    targetRevision: 3.12.1
+    helm:
+      parameters:
+        - name: args[0]
+          value: --kubelet-insecure-tls
+        - name: args[1]
+          value: --kubelet-preferred-address-types=InternalIP
+  destination:
+    server: 'https://kube.dmz.durp.loc:6443'
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://kubernetes-sigs.github.io/metrics-server/'
+    chart: metrics-server
+    targetRevision: 3.12.1
+    helm:
+      parameters:
+        - name: args[0]
+          value: --kubelet-insecure-tls
+        - name: args[1]
+          value: --kubelet-preferred-address-types=InternalIP
+  destination:
+    server: 'https://kube.dev.durp.loc:6443'
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

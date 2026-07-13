@@ -19,29 +19,29 @@ spec:
     syncOptions:
       - CreateNamespace=true
 
-#---
-#
-#apiVersion: argoproj.io/v1alpha1
-#kind: Application
-#metadata:
-#  name: cert-manager-dmz
-#  namespace: argocd
-#spec:
-#  project: default
-#  source:
-#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-#    targetRevision: main
-#    path: dmz/cert-manager
-#  destination:
-#    namespace: cert-manager
-#    name: dmz
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfHeal: true  
-#    syncOptions:
-#      - CreateNamespace=true 
-#
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-dmz
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: dmz/cert-manager
+  destination:
+    namespace: cert-manager
+    name: dmz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true  
+    syncOptions:
+      - CreateNamespace=true 
+
 #---
 #
 #apiVersion: argoproj.io/v1alpha1

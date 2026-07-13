@@ -24,29 +24,28 @@ spec:
         pod-security.kubernetes.io/audit: privileged
         pod-security.kubernetes.io/warn: privileged
 
-#---
-#
-#apiVersion: argoproj.io/v1alpha1
-#kind: Application
-#metadata:
-#  name: metallb-system-dmz
-#  namespace: argocd
-#spec:
-#  project: default
-#  source:
-#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-#    targetRevision: main
-#    path: dmz/metallb-system
-#  destination:
-#    namespace: metallb-system
-#    name: dmz
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfHeal: true  
-#    syncOptions:
-#      - CreateNamespace=true
-#
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb-system-dmz
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: dmz/metallb-system
+  destination:
+    namespace: metallb-system
+    name: dmz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true  
+    syncOptions:
+      - CreateNamespace=true
+
 #---
 #
 #apiVersion: argoproj.io/v1alpha1
