@@ -542,7 +542,7 @@ openclarity:
       # -- Trivy Server container repository
       repository: aquasec/trivy
       # -- Trivy Server container tag
-      tag: 0.69.3
+      tag: 0.72.0
       # -- Trivy Server image digest. If set will override the tag.
       digest: ""
       # -- Trivy Server image pull policy
