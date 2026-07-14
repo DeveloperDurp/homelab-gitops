@@ -29,6 +29,7 @@ spec:
     auth:
       kubernetes:
         mountPath: /v1/auth/dmz-cluster
-        role: issuer
-        serviceAccountRef:
-          name: vault
+        role: pki-issuer-role
+        secretRef:
+          name: vault-issuer-token
+          key: token
