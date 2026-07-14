@@ -26,6 +26,6 @@ cert-manager:
       pullPolicy: Always
 
   hostAliases: 
-  - ip: 192.168.12.141
+  - ip: 192.168.12.130
     hostnames:
     - vault.infra.durp.info
