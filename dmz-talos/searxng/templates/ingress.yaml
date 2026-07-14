@@ -1,0 +1,76 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: searxng-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`searxng.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      middlewares:
+        - name: authentik-proxy-provider
+          namespace: traefik
+      services:
+        - name: searxng-service
+          port: 8080
+  tls:
+    secretName: searxng-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: searxng-tls
+spec:
+  secretName: searxng-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "searxng.durp.info"
+  dnsNames:
+    - "searxng.durp.info"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: searxng-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: searxng.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: searxng-internal-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`searxng.internal.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: searxng-service
+          port: 8080
+  tls:
+    secretName: searxng-internal-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: searxng-internal-tls
+spec:
+  secretName: searxng-internal-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "searxng.internal.durp.info"
+  dnsNames:
+    - "searxng.internal.durp.info"

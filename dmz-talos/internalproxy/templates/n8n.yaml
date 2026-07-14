@@ -1,0 +1,68 @@
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: n8n
+#spec:
+#  ports:
+#    - name: app
+#      port: 5678
+#      protocol: TCP
+#      targetPort: 5678
+#  clusterIP: None
+#  type: ClusterIP
+#
+#---
+#apiVersion: v1
+#kind: Endpoints
+#metadata:
+#  name: n8n
+#subsets:
+#  - addresses:
+#      - ip: 192.168.21.200
+#    ports:
+#      - name: app
+#        port: 5678
+#        protocol: TCP
+#
+#---
+#apiVersion: traefik.io/v1alpha1
+#kind: IngressRoute
+#metadata:
+#  name: n8n-ingress
+#spec:
+#  entryPoints:
+#    - websecure
+#  routes:
+#    - match: Host(`n8n.durp.info`) && PathPrefix(`/`)
+#      kind: Rule
+#      services:
+#        - name: n8n
+#          port: 5678
+#          scheme: http
+#  tls:
+#    secretName: n8n-tls
+#
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+#  name: n8n-tls
+#spec:
+#  secretName: n8n-tls
+#  issuerRef:
+#    name: letsencrypt-production
+#    kind: ClusterIssuer
+#  commonName: "n8n.durp.info"
+#  dnsNames:
+#    - "n8n.durp.info"
+#
+#---
+#kind: Service
+#apiVersion: v1
+#metadata:
+#  name: n8n-dns
+#  annotations:
+#    dns.alpha.kubernetes.io/hostname: n8n.durp.info
+#spec:
+#  type: ExternalName
+#  externalName: durp.info

@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dmz/internalproxy
+    path: dmz-talos/internalproxy
   destination:
     namespace: internalproxy
     name: dmz

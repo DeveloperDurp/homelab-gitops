@@ -31,7 +31,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dmz/cert-manager
+    path: dmz-talos/cert-manager
   destination:
     namespace: cert-manager
     name: dmz

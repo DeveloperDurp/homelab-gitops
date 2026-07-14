@@ -1,0 +1,56 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openspeedtest-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`speedtest.durp.info`) && PathPrefix(`/`)
+    kind: Rule
+    middlewares:
+    - name: authentik-proxy-provider
+      namespace: traefik  
+    - name: limit-buffering
+    services:
+    - name: openspeedtest
+      port: 3000
+  tls:
+    secretName: openspeedtest-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openspeedtest-tls
+spec:
+  secretName: openspeedtest-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "speedtest.durp.info"
+  dnsNames:
+  - "speedtest.durp.info"  
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: openspeedtest-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: speedtest.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
+
+---
+
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: limit-buffering
+spec:
+  buffering:
+    maxRequestBodyBytes: 10000000000

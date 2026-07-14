@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: registry-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`registry.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      middlewares:
+        - name: whitelist
+          namespace: traefik
+      services:
+        - name: unraid
+          port: 5000
+  tls:
+    secretName: registry-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: registry-tls
+spec:
+  secretName: registry-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "registry.durp.info"
+  dnsNames:
+    - "registry.durp.info"
+
+---
+#kind: Service
+#apiVersion: v1
+#metadata:
+#  name: registry-external-dns
+#  annotations:
+#    external-dns.alpha.kubernetes.io/hostname: registry.durp.info
+#spec:
+#  type: ExternalName
+#  externalName: durp.info

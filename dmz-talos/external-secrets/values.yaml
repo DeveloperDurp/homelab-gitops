@@ -1,0 +1,100 @@
+external-secrets:
+  global:
+    security:
+      allowInsecureImages: true
+
+  log:
+    level: debug
+  replicaCount: 1
+  revisionHistoryLimit: 1
+  leaderElect: false
+
+  installCRDs: true
+  crds:
+    createClusterExternalSecret: true
+    createClusterSecretStore: true
+    createClusterGenerator: true
+    createPushSecret: true
+    conversion:
+      enabled: false
+
+  image:
+    repository: registry.durp.info/external-secrets/external-secrets
+    pullPolicy: Always
+
+  extraVolumes:
+    - name: ca-pemstore
+      configMap:
+        name: ca-pemstore
+
+  extraVolumeMounts:
+    - name: ca-pemstore
+      mountPath: /etc/ssl/certs/vault.pem
+      subPath: vault.pem
+      readOnly: true
+
+  #  resources:
+  #    requests:
+  #      memory: 32Mi
+  #      cpu: 10m
+  #    limits:
+  #      memory: 32Mi
+  #      cpu: 10m
+
+  webhook:
+    create: false
+    failurePolicy: Ignore
+    log:
+      level: debug
+    image:
+      repository: registry.durp.info/external-secrets/external-secrets
+      pullPolicy: Always
+
+    extraVolumes:
+      - name: ca-pemstore
+        configMap:
+          name: ca-pemstore
+
+    extraVolumeMounts:
+      - name: ca-pemstore
+        mountPath: /etc/ssl/certs/vault.pem
+        subPath: vault.pem
+        readOnly: true
+
+  #    resources:
+  #      requests:
+  #        memory: 32Mi
+  #        cpu: 10m
+  #      limits:
+  #        memory: 32Mi
+  #        cpu: 10m
+
+  certController:
+    create: false
+    revisionHistoryLimit: 1
+    log:
+      level: debug
+
+    image:
+      repository: registry.durp.info/external-secrets/external-secrets
+      pullPolicy: Always
+      tag: ""
+
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 10m
+      limits:
+        memory: 32Mi
+        cpu: 10m
+
+    extraVolumes:
+      - name: ca-pemstore
+        configMap:
+          name: ca-pemstore
+
+    extraVolumeMounts:
+      - name: ca-pemstore
+        mountPath: /etc/ssl/certs/vault.pem
+        subPath: vault.pem
+        readOnly: true

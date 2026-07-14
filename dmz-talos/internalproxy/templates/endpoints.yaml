@@ -1,0 +1,277 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: master-cluster
+subsets:
+  - addresses:
+      - ip: 192.168.20.130
+    ports:
+      - port: 443
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: master-cluster
+spec:
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: infra-cluster
+subsets:
+  - addresses:
+      - ip: 192.168.12.130
+    ports:
+      - port: 443
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infra-cluster
+spec:
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unraid
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+    - name: tdarr
+      port: 8267
+      protocol: TCP
+      targetPort: 8267
+    - name: duplicati
+      port: 8200
+      protocol: TCP
+      targetPort: 8200
+    - name: forgejo
+      port: 3000
+      protocol: TCP
+    - name: kuma
+      port: 3001
+      protocol: TCP
+      targetPort: 3000
+    - name: freshrss
+      port: 8085
+      protocol: TCP
+      targetPort: 8085
+    - name: gitlab-ssh
+      port: 9022
+      protocol: TCP
+      targetPort: 9022
+    - name: gitlab
+      port: 9443
+      protocol: TCP
+      targetPort: 9443
+    - name: minio
+      port: 9769
+      protocol: TCP
+      targetPort: 9769
+    - name: nextcloud
+      port: 11000
+      protocol: TCP
+      targetPort: 11000
+    - name: nexus
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    - name: openweb-ui
+      port: 8089
+      protocol: TCP
+      targetPort: 8089
+    - name: plex
+      port: 32400
+      protocol: TCP
+      targetPort: 32400
+    - name: registry
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+    - name: gitlab-registry
+      port: 5002
+      protocol: TCP
+      targetPort: 5002
+    - name: root-vault
+      port: 8201
+      protocol: TCP
+      targetPort: 8201
+    - name: s3
+      port: 9768
+      protocol: TCP
+      targetPort: 9768
+    - name: smokeping
+      port: 81
+      protocol: TCP
+      targetPort: 81
+    - name: gotify
+      port: 8070
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: unraid
+subsets:
+  - addresses:
+      - ip: 192.168.21.200
+    ports:
+      - name: https
+        port: 443
+        protocol: TCP
+      - name: tdarr
+        port: 8267
+        protocol: TCP
+      - name: duplicati
+        port: 8200
+        protocol: TCP
+      - name: forgejo
+        port: 3000
+        protocol: TCP
+      - name: kuma
+        port: 3001
+        protocol: TCP
+      - name: freshrss
+        port: 8085
+        protocol: TCP
+      - name: gitlab-ssh
+        port: 9022
+        protocol: TCP
+      - name: gitlab
+        port: 9443
+        protocol: TCP
+      - name: minio
+        port: 9769
+        protocol: TCP
+      - name: nextcloud
+        port: 11000
+        protocol: TCP
+      - name: nexus
+        port: 8081
+        protocol: TCP
+      - name: openweb-ui
+        port: 8089
+        protocol: TCP
+      - name: plex
+        port: 32400
+        protocol: TCP
+      - name: registry
+        port: 5000
+        protocol: TCP
+      - name: gitlab-registry
+        port: 5002
+        protocol: TCP
+      - name: root-vault
+        port: 8201
+        protocol: TCP
+      - name: s3
+        port: 9768
+        protocol: TCP
+      - name: smokeping
+        port: 81
+        protocol: TCP
+      - name: gotify
+        port: 8070
+        protocol: TCP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: ubuntu
+subsets:
+  - addresses:
+      - ip: 192.168.20.104
+    ports:
+      - name: https
+        port: 443
+        protocol: TCP
+      - name: litellm
+        port: 4000
+        protocol: TCP
+      - name: ollama
+        port: 11435
+        protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu
+spec:
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 443
+    - name: litellm
+      port: 4000
+      protocol: TCP
+      targetPort: 4000
+    - name: ollama
+      port: 11435
+      protocol: TCP
+      targetPort: 11435
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: hermes
+subsets:
+  - addresses:
+      - ip: 192.168.12.50
+    ports:
+      - name: ollama
+        port: 11434
+        protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes
+spec:
+  ports:
+    - name: ollama
+      port: 11434
+      protocol: TCP
+      targetPort: 11434
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: infra-talos-cluster
+subsets:
+  - addresses:
+      - ip: 192.168.12.141
+    ports:
+      - port: 443
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infra-talos-cluster
+spec:
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443

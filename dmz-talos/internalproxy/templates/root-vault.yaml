@@ -1,0 +1,33 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: root-vault-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`root-vault.internal.durp.info`) && PathPrefix(`/`)
+      middlewares:
+        - name: whitelist
+          namespace: traefik
+      kind: Rule
+      services:
+        - name: unraid
+          port: 8201
+          scheme: https
+  tls:
+    secretName: root-vault-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: root-vault-tls
+spec:
+  secretName: root-vault-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  commonName: "root-vault.internal.durp.info"
+  dnsNames:
+    - "root-vault.internal.durp.info"

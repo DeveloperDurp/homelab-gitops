@@ -1,0 +1,31 @@
+cert-manager:
+  crds:
+    enabled: true
+  image:
+    registry: registry.durp.info
+    repository: jetstack/cert-manager-controller
+    pullPolicy: Always
+  replicaCount: 3
+  extraArgs:
+    - --dns01-recursive-nameservers=1.1.1.1:53,1.0.0.1:53
+    - --dns01-recursive-nameservers-only
+  podDnsPolicy: None
+  podDnsConfig:
+    nameservers:
+      - "1.1.1.1"
+      - "1.0.0.1"
+  webhook:
+    image:
+      registry: registry.durp.info
+      repository: jetstack/cert-manager-webhook
+      pullPolicy: Always  
+  cainjector:
+    image:
+      registry: registry.durp.info
+      repository: jetstack/cert-manager-cainjector
+      pullPolicy: Always
+
+  hostAliases: 
+  - ip: 192.168.12.130
+    hostnames:
+    - vault.infra.durp.info

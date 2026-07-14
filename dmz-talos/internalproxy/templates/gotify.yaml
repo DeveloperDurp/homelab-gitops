@@ -1,0 +1,41 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gotify-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gotify.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 8070
+          scheme: http
+  tls:
+    secretName: gotify-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gotify-tls
+spec:
+  secretName: gotify-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "gotify.durp.info"
+  dnsNames:
+    - "gotify.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gotify-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: gotify.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info

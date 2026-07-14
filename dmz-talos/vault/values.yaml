@@ -1,0 +1,13 @@
+vault:
+  global:
+    enabled: true
+    tlsDisable: false
+    externalVaultAddr: "https://vault.infra.durp.info"
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 256Mi
+        cpu: 250m
+  

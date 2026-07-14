@@ -1,0 +1,42 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: littlelink-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`links.durp.info`) && PathPrefix(`/`)
+    kind: Rule
+    services:
+    - name: littlelink
+      port: 80
+  tls:
+    secretName: littlelink-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: littlelink-tls
+spec:
+  secretName: littlelink-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "links.durp.info"
+  dnsNames:
+  - "links.durp.info"  
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: links-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: links.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info

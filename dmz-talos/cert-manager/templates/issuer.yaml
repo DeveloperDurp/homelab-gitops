@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: issuer
+secrets:
+  - name:  issuer-token-lmzpj
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: issuer-token-lmzpj
+  annotations:
+    kubernetes.io/service-account.name: issuer
+type: kubernetes.io/service-account-token

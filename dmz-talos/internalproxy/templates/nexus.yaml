@@ -1,0 +1,42 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nexus-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`nexus.durp.info`) && PathPrefix(`/`)
+    kind: Rule
+    services:
+    - name: unraid
+      port: 8081
+  tls:
+    secretName: nexus-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nexus-tls
+spec:
+  secretName: nexus-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "nexus.durp.info"
+  dnsNames:
+  - "nexus.durp.info"  
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: nexus-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: nexus.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info

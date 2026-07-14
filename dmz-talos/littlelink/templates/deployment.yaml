@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: littlelink
+  name: littlelink
+  labels:
+    app: littlelink
+spec:
+  selector:
+    matchLabels:
+      app: littlelink
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: littlelink
+    spec:
+      containers:
+      - name: littlelink
+        image: registry.durp.info/techno-tim/littlelink-server:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 3000
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 3000            
+        env:
+          - name: META_TITLE
+            value: DeveloperDurp
+          - name: META_DESCRIPTION
+            value: The Durpy Developer
+          - name: META_AUTHOR
+            value: DeveloperDurp
+          - name: LANG
+            value: en
+          - name: META_INDEX_STATUS
+            value: all
+          - name: OG_TITLE
+            value: DeveloperDurp
+          - name: OG_DESCRIPTION
+            value: DeveloperDurp
+          - name: OG_URL
+            value: https://gitlab.com/developerdurp
+          - name: OG_IMAGE
+            value: https://gitlab.com/uploads/-/system/user/avatar/9987937/avatar.png
+          - name : OG_IMAGE_WIDTH
+            value: "400"
+          - name : OG_IMAGE_HEIGHT
+            value: "400"
+          - name : THEME
+            value: Dark 
+          - name : FAVICON_URL
+            value: https://gitlab.com/uploads/-/system/user/avatar/9987937/avatar.png
+          - name : AVATAR_URL
+            value: https://gitlab.com/uploads/-/system/user/avatar/9987937/avatar.png
+          - name : AVATAR_2X_URL
+            value: https://gitlab.com/uploads/-/system/user/avatar/9987937/avatar.png   
+          - name : AVATAR_ALT
+            value: DeveloperDurp Profile Pic
+          - name : NAME
+            value: DeveloperDurp
+          - name : BIO
+            value: Sup Nerd,
+          - name : BUTTON_ORDER
+            value: GITHUB,GITLAB,YOUTUBE,INSTAGRAM,TWITTER,BLUESKY,COFFEE,EMAIL
+          - name : TWITTER
+            value: https://twitter.com/developerdurp                
+          - name : GITHUB
+            value: https://github.com/DeveloperDurp
+          - name: INSTAGRAM
+            value: https://instagram.com/developerdurp
+          - name : GITLAB
+            value: https://gitlab.com/developerdurp
+          - name: YOUTUBE
+            value: https://www.youtube.com/channel/UC1rGa6s6kER_gLpIQsxeMVQ
+          - name : EMAIL
+            value: DeveloperDurp@durp.info
+          - name : EMAIL_TEXT
+            value: DeveloperDurp@durp.info            
+          - name : FOOTER
+            value: DeveloperDurp © 2022         
+          - name: CUSTOM_BUTTON_TEXT
+            value: BuyMeACoffee,BlueSky
+          - name: CUSTOM_BUTTON_URL
+            value: https://www.buymeacoffee.com/DeveloperDurp,https://bsky.app/profile/durp.info
+          - name: CUSTOM_BUTTON_COLOR
+            value: '#ffdd00,#1185fe'
+          - name: CUSTOM_BUTTON_TEXT_COLOR
+            value: '#000000,#FFFFFF'
+          - name: CUSTOM_BUTTON_ALT_TEXT
+            value: Support,BlueSky
+          - name: CUSTOM_BUTTON_NAME
+            value: COFFEE,BLUESKY
+          - name: CUSTOM_BUTTON_ICON
+            value: fa-solid fa-cup-togo
+        ports:
+        - name: http
+          containerPort: 3000          

@@ -1,0 +1,41 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: open-webui-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`open-webui.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 8089
+          scheme: http
+  tls:
+    secretName: open-webui-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: open-webui-tls
+spec:
+  secretName: open-webui-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "open-webui.durp.info"
+  dnsNames:
+    - "open-webui.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: open-webui-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: open-webui.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info

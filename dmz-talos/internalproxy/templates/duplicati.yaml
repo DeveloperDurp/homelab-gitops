@@ -1,0 +1,35 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: duplicati-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`duplicati.internal.durp.info`) && PathPrefix(`/`)
+    middlewares:
+    - name: whitelist
+      namespace: traefik
+    - name: authentik-proxy-provider
+      namespace: traefik  
+    kind: Rule
+    services:
+    - name: unraid
+      port: 8200
+  tls:
+    secretName: duplicati-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: duplicati-tls
+spec:
+  secretName: duplicati-tls
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+  commonName: "duplicati.internal.durp.info"
+  dnsNames:
+  - "duplicati.internal.durp.info"  

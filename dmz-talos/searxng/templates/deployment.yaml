@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: searxng
+  name: searxng
+  labels:
+    app: searxng
+spec:
+  selector:
+    matchLabels:
+      app: searxng
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      containers:
+        - name: searxng
+          image: registry.durp.info/searxng/searxng:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SEARXNG_BASE_URL
+              value: https://searxng.durp.info
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: searxng-secret
+                  key: SEARXNG_SECRET
+          volumeMounts:
+            - name: searxng-config-volume
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
+      volumes:
+        - name: searxng-config-volume
+          configMap:
+            name: searxng-config

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: openspeedtest
+  name: openspeedtest
+  labels:
+    app: openspeedtest
+spec:
+  selector:
+    matchLabels:
+      app: openspeedtest
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: openspeedtest
+    spec:
+      containers:
+      - name: openspeedtest
+        image: registry.durp.info/openspeedtest/latest
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+        env:
+        ports:
+        - name: http
+          containerPort: 3000

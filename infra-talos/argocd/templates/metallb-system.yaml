@@ -35,7 +35,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dmz/metallb-system
+    path: dmz-talos/metallb-system
   destination:
     namespace: metallb-system
     name: dmz

@@ -1,0 +1,169 @@
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: gitlab-ssh
+#spec:
+#  ports:
+#    - name: app
+#      port: 9022
+#      protocol: TCP
+#      targetPort: 9022
+#  clusterIP: None
+#  type: ClusterIP
+#
+#---
+#apiVersion: v1
+#kind: Endpoints
+#metadata:
+#  name: gitlab-ssh
+#subsets:
+#  - addresses:
+#      - ip: 192.168.21.200
+#    ports:
+#      - name: app
+#        port: 9022
+#        protocol: TCP
+#
+#---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: gitlab-ssh
+spec:
+  entryPoints:
+    - gitlab-ssh
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: unraid
+          port: 9022
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gitlab.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 9443
+          scheme: https
+  tls:
+    secretName: gitlab-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gitlab-tls
+spec:
+  secretName: gitlab-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "gitlab.durp.info"
+  dnsNames:
+    - "gitlab.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gitlab-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: gitlab.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab-registry
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`images.durp.info`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 5002
+          scheme: http
+  tls:
+    secretName: gitlab-images-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gitlab-images-tls
+spec:
+  secretName: gitlab-images-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "images.durp.info"
+  dnsNames:
+    - "images.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gitlab-images-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: images.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pages-gitlab-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostRegexp(`{subdomain:[a-z0-9-]+}.pages.durp.info`) || Host(`pages.durp.info`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 9443
+          scheme: https
+  tls:
+    secretName: pages-gitlab-tls
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pages-gitlab-tls
+spec:
+  secretName: pages-gitlab-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "pages.durp.info"
+  dnsNames:
+    - "pages.durp.info"
+    - "*.pages.durp.info"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pages-gitlab-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: pages.durp.info, *.pages.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
