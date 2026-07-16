@@ -4,7 +4,7 @@ metadata:
   name: ollama-secret
 spec:
   secretStoreRef:
-    name: vault
+    name: vault-backend
     kind: ClusterSecretStore
   target:
     name: ollama-secret
