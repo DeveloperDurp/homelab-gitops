@@ -1,4 +1,4 @@
-personal:
+gitlab-runner:
 
   image:
     registry: registry.durp.info
@@ -40,7 +40,7 @@ personal:
     name: "k3s"
     runUntagged: true
     privileged: true
-    secret: gitlab-secret-personal
+    secret: gitlab-secret
     builds:
       cpuLimit: 200m
       cpuLimitOverwriteMaxAllowed: 400m
