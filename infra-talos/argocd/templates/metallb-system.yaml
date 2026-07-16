@@ -51,30 +51,30 @@ spec:
         pod-security.kubernetes.io/audit: privileged
         pod-security.kubernetes.io/warn: privileged
 
-#---
-#
-#apiVersion: argoproj.io/v1alpha1
-#kind: Application
-#metadata:
-#  name: metallb-system-dev
-#  namespace: argocd
-#spec:
-#  project: default
-#  source:
-#    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-#    targetRevision: main
-#    path: dev/metallb-system
-#  destination:
-#    namespace: metallb-system
-#    name: dev
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfHeal: true  
-#    syncOptions:
-#      - CreateNamespace=true 
-#    managedNamespaceMetadata:
-#      labels:
-#        pod-security.kubernetes.io/enforce: privileged
-#        pod-security.kubernetes.io/audit: privileged
-#        pod-security.kubernetes.io/warn: privileged
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb-system-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: dev/metallb-system
+  destination:
+    namespace: metallb-system
+    name: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true  
+    syncOptions:
+      - CreateNamespace=true 
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
