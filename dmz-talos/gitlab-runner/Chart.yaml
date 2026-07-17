@@ -9,4 +9,3 @@ dependencies:
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
   version: 0.77.2
-  alias: personal
