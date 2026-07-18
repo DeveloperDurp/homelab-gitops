@@ -32,6 +32,7 @@ gitlab-runner:
     config: |
       [[runners]]
         [runners.kubernetes]
+          host_aliases = [["gitlab.durp.info", "10.109.156.7"]]
           namespace = "{{.Release.Namespace}}"
           image = "ubuntu:22.04"
           privileged = true
