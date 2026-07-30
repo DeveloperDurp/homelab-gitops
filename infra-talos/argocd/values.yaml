@@ -5,6 +5,14 @@ argo-cd:
 #      repository: registry.durp.info/argoproj/argocd
       imagePullPolicy: Always
 
+  controller:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
   #server:
   #extraArgs:
   #  - --dex-server-plaintext
