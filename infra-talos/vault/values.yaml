@@ -4,8 +4,8 @@ vault:
     tlsDisable: false
     resources:
       requests:
-        memory: 256Mi
-        cpu: 250m
+        memory: 128Mi
+        cpu: 100m
       limits:
         memory: 256Mi
         cpu: 250m
@@ -13,15 +13,13 @@ vault:
   server:
     image:
       repository: "hashicorp/vault"
-    # These Resource Limits are in line with node requirements in the
-    # Vault Reference Architecture for a Small Cluster
-    #resources:
-    #  requests:
-    #    memory: 8Gi
-    #    cpu: 2000m
-    #  limits:
-    #    memory: 16Gi
-    #    cpu: 2000m
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 500m
+      limits:
+        memory: 2Gi
+        cpu: 1000m
   
     # For HA configuration and because we need to manually init the vault,
     # we need to define custom readiness/liveness Probe settings
