@@ -1,0 +1,46 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: durpdeploy-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`durpdeploy.durp.info`) && PathPrefix(`/`)
+      middlewares:
+        - name: whitelist
+          namespace: traefik
+      kind: Rule
+      services:
+        - name: unraid
+          port: 9090
+          scheme: http
+  tls:
+    secretName: durpdeploy-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: durpdeploy-tls
+spec:
+  secretName: durpdeploy-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "durpdeploy.durp.info"
+  dnsNames:
+    - "durpdeploy.durp.info"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: durpdeploy-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: durpdeploy.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
