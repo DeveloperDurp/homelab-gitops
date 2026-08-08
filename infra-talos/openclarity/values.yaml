@@ -845,6 +845,19 @@ openclarity:
     env: []
     # - name: CONTAINERD_SOCK_ADDRESS
     #   value: /var/run/containerd/containerd.sock
+    
+    # Workaround for Helm chart bug - containerRuntimePaths not rendered as volumes
+    # Manually add volumes and volumeMounts for containerd socket
+    extraVolumes:
+      - name: containerd-sock
+        hostPath:
+          path: /run/containerd/containerd.sock
+          type: Socket
+    extraVolumeMounts:
+      - name: containerd-sock
+        mountPath: /var/run/containerd/containerd.sock
+        readOnly: true
+    
     containerRuntimePaths:
       - name: containerd
         path: /var/run/containerd
