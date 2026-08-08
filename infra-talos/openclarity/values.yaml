@@ -845,7 +845,21 @@ openclarity:
     env: []
     # - name: CONTAINERD_SOCK_ADDRESS
     #   value: /var/run/containerd/containerd.sock
-    # ponytail: Talos has no traditional runtime paths — hostPath volumes violate baseline PodSecurity
+    
+    # Workaround for Helm chart bug - containerRuntimePaths not rendered as volumes
+    # Manually add volumes and volumeMounts for containerd socket (Talos path)
+    extraVolumes:
+      - name: containerd-sock
+        hostPath:
+          path: /run/containerd/containerd.sock
+          type: Socket
+    extraVolumeMounts:
+      - name: containerd-sock
+        mountPath: /var/run/containerd/containerd.sock
+        readOnly: true
+    
+    # Note: containerRuntimePaths is broken in chart v1.1.3 - doesn't render as volumes
+    # Using extraVolumes/extraVolumeMounts above instead
     containerRuntimePaths: []
     resources:
       # -- The resources limits for the container runtime discovery server containers
