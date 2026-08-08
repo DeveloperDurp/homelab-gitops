@@ -122,6 +122,9 @@ spec:
     - name: gotify
       port: 8070
       protocol: TCP
+    - name: durpdeploy
+      port: 9090
+      protocol: TCP
 
 ---
 apiVersion: v1
@@ -188,6 +191,9 @@ subsets:
         protocol: TCP
       - name: gotify
         port: 8070
+        protocol: TCP
+      - name: durpdeploy
+        port: 9090
         protocol: TCP
 
 ---
