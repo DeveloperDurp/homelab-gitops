@@ -20,6 +20,8 @@ authentik:
   authentik:
     outposts:
       container_image_base: registry.durp.info/goauthentik/%(type)s:%(version)s
+      ingress:
+        enabled: false
     postgresql:
       host: "{{ .Release.Name }}-postgresql-hl"
       name: "authentik"
