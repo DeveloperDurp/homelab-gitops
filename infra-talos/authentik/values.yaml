@@ -39,9 +39,9 @@ authentik:
     resources:
       requests:
         cpu: 100m
-        memory: 128Mi
+        memory: 256Mi
       limits:
-        memory: 512Mi
+        memory: 1Gi
   postgresql:
     enabled: true
     image:
