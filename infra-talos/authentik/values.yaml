@@ -62,8 +62,19 @@ authentik:
         cpu: 250m
         memory: 512Mi
       limits:
-        cpu: 1000m
         memory: 1Gi
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 120
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 10
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 10
+      failureThreshold: 6
   redis:
     enabled: true
     master:

@@ -125,6 +125,12 @@ longhorn:
   longhornManager:
     priorityClass: ~
     tolerations: []
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
     ## If you want to set tolerations for Longhorn Manager DaemonSet, delete the `[]` in the line above
     ## and uncomment this example block
     # - key: "key"
