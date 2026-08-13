@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets
+  name: cert-manager
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/external-secrets
+    path: infra/cert-manager
   destination:
-    namespace: external-secrets
+    namespace: cert-manager
     name: in-cluster
   syncPolicy:
     automated:
@@ -24,16 +24,16 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets-dmz
+  name: cert-manager-dmz
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dmz-talos/external-secrets
+    path: dmz/cert-manager
   destination:
-    namespace: external-secrets
+    namespace: cert-manager
     name: dmz
   syncPolicy:
     automated:
@@ -47,16 +47,16 @@ spec:
 #apiVersion: argoproj.io/v1alpha1
 #kind: Application
 #metadata:
-#  name: external-secrets-dev
+#  name: cert-manager-dev
 #  namespace: argocd
 #spec:
 #  project: default
 #  source:
 #    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
 #    targetRevision: main
-#    path: dev/external-secrets
+#    path: dev/cert-manager
 #  destination:
-#    namespace: external-secrets
+#    namespace: cert-manager
 #    name: dev
 #  syncPolicy:
 #    automated:
@@ -64,3 +64,4 @@ spec:
 #      selfHeal: true
 #    syncOptions:
 #      - CreateNamespace=true
+#

@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb-system
+  name: traefik
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/metallb-system
+    path: infra/traefik
   destination:
-    namespace: metallb-system
+    namespace: traefik
     name: in-cluster
   syncPolicy:
     automated:
@@ -18,63 +18,48 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-    managedNamespaceMetadata:
-      labels:
-        pod-security.kubernetes.io/enforce: privileged
-        pod-security.kubernetes.io/audit: privileged
-        pod-security.kubernetes.io/warn: privileged
 
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb-system-dmz
+  name: traefik-dmz
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dmz-talos/metallb-system
+    path: dmz/traefik
   destination:
-    namespace: metallb-system
+    namespace: traefik
     name: dmz
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true  
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
-    managedNamespaceMetadata:
-      labels:
-        pod-security.kubernetes.io/enforce: privileged
-        pod-security.kubernetes.io/audit: privileged
-        pod-security.kubernetes.io/warn: privileged
 
 ---
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb-system-dev
+  name: traefik-dev
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: dev/metallb-system
+    path: dev/traefik
   destination:
-    namespace: metallb-system
+    namespace: traefik
     name: dev
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true  
+      selfHeal: true
     syncOptions:
-      - CreateNamespace=true 
-    managedNamespaceMetadata:
-      labels:
-        pod-security.kubernetes.io/enforce: privileged
-        pod-security.kubernetes.io/audit: privileged
-        pod-security.kubernetes.io/warn: privileged
+      - CreateNamespace=true
+

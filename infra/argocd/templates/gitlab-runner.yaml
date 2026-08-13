@@ -1,30 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: longhorn-system
+  name: gitlab-runner-dmz
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/longhorn
+    path: dmz/gitlab-runner
   destination:
-    namespace: longhorn-system
-    name: in-cluster
+    namespace: gitlab-runner
+    name: dmz
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true
+      selfHeal: true  
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=true 
     managedNamespaceMetadata:
       labels:
         pod-security.kubernetes.io/enforce: privileged
         pod-security.kubernetes.io/audit: privileged
         pod-security.kubernetes.io/warn: privileged
-  ignoreDifferences:
-    - group: engineimages.longhorn.io
-      jsonPointers:
-        - /spec/preserveUnknownFields
-      kind: CustomResourceDefinition

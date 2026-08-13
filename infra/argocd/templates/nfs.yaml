@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: nfs-dev
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/cert-manager
+    path: infra/nfs-provisioner
   destination:
-    namespace: cert-manager
+    namespace: kube-system
     name: in-cluster
   syncPolicy:
     automated:
@@ -19,44 +19,20 @@ spec:
     syncOptions:
       - CreateNamespace=true
 
----
-
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: cert-manager-dmz
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
-    targetRevision: main
-    path: dmz-talos/cert-manager
-  destination:
-    namespace: cert-manager
-    name: dmz
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true  
-    syncOptions:
-      - CreateNamespace=true 
-
 #---
-#
 #apiVersion: argoproj.io/v1alpha1
 #kind: Application
 #metadata:
-#  name: cert-manager-dev
+#  name: nfs-dev
 #  namespace: argocd
 #spec:
 #  project: default
 #  source:
 #    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
 #    targetRevision: main
-#    path: dev/cert-manager
+#    path: dev/nfs-provisioner
 #  destination:
-#    namespace: cert-manager
+#    namespace: kube-system
 #    name: dev
 #  syncPolicy:
 #    automated:
@@ -64,4 +40,3 @@ spec:
 #      selfHeal: true
 #    syncOptions:
 #      - CreateNamespace=true
-#

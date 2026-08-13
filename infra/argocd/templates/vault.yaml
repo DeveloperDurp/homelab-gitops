@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/vault
+    path: infra/vault
   destination:
     namespace: vault
     name: in-cluster
