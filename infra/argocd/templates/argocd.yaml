@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
-    path: infra-talos/argocd
+    path: infra/argocd
   destination:
     namespace: argocd
     name: in-cluster
