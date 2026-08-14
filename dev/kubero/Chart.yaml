@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kubero
+description: Kubero UI and operator for the dev Kubernetes cluster
+type: application
+version: 0.1.0
+appVersion: "v3.1.1"
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial GitOps deployment for the dev cluster.
