@@ -7,6 +7,9 @@ spec:
     - websecure
   routes:
     - match: Host(`opencode.durp.info`) && PathPrefix(`/`)
+      middlewares:
+        - name: whitelist
+          namespace: traefik
       kind: Rule
       services:
         - name: hermes
