@@ -1,0 +1,42 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: opencode-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`opencode.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: hermes
+          port: 4096
+  tls:
+    secretName: opencode-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opencode-tls
+spec:
+  secretName: opencode-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "opencode.durp.info"
+  dnsNames:
+    - "opencode.durp.info"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: opencode-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: opencode.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
