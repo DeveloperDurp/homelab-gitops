@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik-remote-cluster-dmz
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    targetRevision: main
+    path: dmz/authentik-remote-cluster
+    directory:
+      recurse: true
+  destination:
+    name: dmz
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

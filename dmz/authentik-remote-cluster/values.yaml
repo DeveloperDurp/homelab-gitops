@@ -1,0 +1,27 @@
+# Default values for authentik-remote-cluster
+# This chart deploys an Authentik outpost pod on the dmz cluster that proxies
+# authentication requests back to the central Authentik server on the infra cluster.
+
+# IMPORTANT: After installing this chart, you must:
+# 1. Copy the kubeconfig output from the helm install
+# 2. Add it in Authentik UI: Applications > Outposts > Create/Edit > Kubernetes Integration
+# 3. The outpost will then register itself and start proxying auth requests
+
+remoteName: dmz-cluster
+logLevel: info
+
+# The outpost pod will be exposed via this service
+service:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+
+# Resources for the outpost pod
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
