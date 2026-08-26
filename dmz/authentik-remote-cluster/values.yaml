@@ -21,6 +21,12 @@ authentik-remote-cluster:
   # -- Annotations to apply to all resources
   annotations: {}
 
+  # -- The remote cluster name as registered in Authentik
+  remoteName: dmz-cluster
+
+  # -- Log level for the outpost
+  logLevel: info
+
   serviceAccountSecret:
     # -- Create a secret with the service account credentials
     enabled: true
