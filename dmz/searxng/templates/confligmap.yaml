@@ -9,3 +9,11 @@ data:
       formats:
         - html
         - json
+    engines:
+      # Disabled engines - failing with 403 on init from cluster egress IP
+      wikidata:
+        disabled: true
+      ahmia:
+        disabled: true
+      torch:
+        disabled: true
