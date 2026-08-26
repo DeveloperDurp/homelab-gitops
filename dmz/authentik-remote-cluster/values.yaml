@@ -1,27 +1,30 @@
-# Default values for authentik-remote-cluster
-# This chart deploys an Authentik outpost pod on the dmz cluster that proxies
-# authentication requests back to the central Authentik server on the infra cluster.
+authentik-remote-cluster:
+  # -- Provide a name in place of `authentik`. Prefer using global.nameOverride if possible
+  nameOverride: ""
+  # -- String to fully override `"authentik.fullname"`. Prefer using global.fullnameOverride if possible
+  fullnameOverride: ""
+  # -- Override the Kubernetes version, which is used to evaluate certain manifests
+  kubeVersionOverride: ""
 
-# IMPORTANT: After installing this chart, you must:
-# 1. Copy the kubeconfig output from the helm install
-# 2. Add it in Authentik UI: Applications > Outposts > Create/Edit > Kubernetes Integration
-# 3. The outpost will then register itself and start proxying auth requests
+  ## Globally shared configuration for authentik components.
+  global:
+    # -- Provide a name in place of `authentik`
+    nameOverride: ""
+    # -- String to fully override `"authentik.fullname"`
+    fullnameOverride: ""
+    # -- A custom namespace to override the default namespace for the deployed resources.
+    namespaceOverride: ""
+    # -- Common labels for all resources.
+    additionalLabels: {}
+      # app: authentik
 
-remoteName: dmz-cluster
-logLevel: info
+  # -- Annotations to apply to all resources
+  annotations: {}
 
-# The outpost pod will be exposed via this service
-service:
-  type: ClusterIP
-  ports:
-    - name: http
-      port: 9000
-      targetPort: 9000
+  serviceAccountSecret:
+    # -- Create a secret with the service account credentials
+    enabled: true
 
-# Resources for the outpost pod
-resources:
-  requests:
-    cpu: 50m
-    memory: 128Mi
-  limits:
-    memory: 256Mi
+  clusterRole:
+    # -- Create a clusterole in addition to a namespaced role.
+    enabled: true
