@@ -10,4 +10,4 @@ appVersion: "2026.2.3"
 dependencies:
   - name: authentik-remote-cluster
     repository: https://charts.goauthentik.io
-    version: 2026.2.3
+    version: 2.1.0
