@@ -11,9 +11,9 @@ data:
         - json
     engines:
       # Disabled engines - failing with 403 on init from cluster egress IP
-      wikidata:
+      - name: wikidata
         disabled: true
-      ahmia:
+      - name: ahmia
         disabled: true
-      torch:
+      - name: torch
         disabled: true
