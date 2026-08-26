@@ -8,9 +8,6 @@ spec:
   routes:
     - match: Host(`searxng.durp.info`) && PathPrefix(`/`)
       kind: Rule
-      middlewares:
-        - name: authentik-proxy-provider
-          namespace: traefik
       services:
         - name: searxng-service
           port: 8080
