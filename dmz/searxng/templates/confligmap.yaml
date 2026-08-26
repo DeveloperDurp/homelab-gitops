@@ -10,10 +10,12 @@ data:
         - html
         - json
     engines:
-      # Disabled engines - failing with 403 on init from cluster egress IP
+      # Inactive engines - failing with 403 on init from cluster egress IP
+      # Using 'inactive: true' (not 'disabled: true') because wikidata's
+      # init() runs even when disabled, and 403 from cloud IPs blocks startup
       - name: wikidata
-        disabled: true
+        inactive: true
       - name: ahmia
-        disabled: true
+        inactive: true
       - name: torch
-        disabled: true
+        inactive: true
