@@ -2,9 +2,8 @@ cert-manager:
   crds:
     enabled: true
   image:
-    registry: registry.durp.info
     repository: jetstack/cert-manager-controller
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
   replicaCount: 3
   extraArgs:
     - --dns01-recursive-nameservers=1.1.1.1:53,1.0.0.1:53
@@ -16,14 +15,12 @@ cert-manager:
       - "1.0.0.1"
   webhook:
     image:
-      registry: registry.durp.info
       repository: jetstack/cert-manager-webhook
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
   cainjector:
     image:
-      registry: registry.durp.info
       repository: jetstack/cert-manager-cainjector
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
 
   hostAliases:
     - ip: 192.168.12.130
