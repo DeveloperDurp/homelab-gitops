@@ -2,7 +2,6 @@ cert-manager:
   crds:
     enabled: true
   image:
-    registry: registry.internal.durp.info
     repository: jetstack/cert-manager-controller
     pullPolicy: Always
   replicaCount: 3
@@ -16,11 +15,9 @@ cert-manager:
       - "1.0.0.1"
   webhook:
     image:
-      registry: registry.internal.durp.info
       repository: jetstack/cert-manager-webhook
-      pullPolicy: Always  
+      pullPolicy: Always
   cainjector:
     image:
-      registry: registry.internal.durp.info
       repository: jetstack/cert-manager-cainjector
       pullPolicy: Always
