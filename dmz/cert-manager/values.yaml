@@ -2,7 +2,7 @@ cert-manager:
   crds:
     enabled: true
   image:
-    repository: jetstack/cert-manager-controller
+    #repository: jetstack/cert-manager-controller
     pullPolicy: Always
   replicaCount: 3
   extraArgs:
@@ -15,11 +15,11 @@ cert-manager:
       - "1.0.0.1"
   webhook:
     image:
-      repository: jetstack/cert-manager-webhook
+      #repository: jetstack/cert-manager-webhook
       pullPolicy: Always
   cainjector:
     image:
-      repository: jetstack/cert-manager-cainjector
+      #repository: jetstack/cert-manager-cainjector
       pullPolicy: Always
 
   hostAliases:
