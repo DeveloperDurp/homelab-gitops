@@ -16,9 +16,3 @@ cloudnative-pg:
   # Expose operator metrics for Prometheus
   metrics:
     enabled: true
-
-  # Image registry override (use local)
-  image:
-    registry: registry.durp.info
-    repository: cloudnative-pg/cloudnative-pg
-    pullPolicy: Always

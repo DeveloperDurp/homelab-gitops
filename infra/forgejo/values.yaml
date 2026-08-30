@@ -3,10 +3,9 @@ forgejo:
   replicaCount: 1
 
   image:
-    registry: registry.durp.info
-    repository: forgejo/forgejo
+    repository: codeberg/forgejo/forgejo
     tag: "10.0"
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   service:
     type: ClusterIP
