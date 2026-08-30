@@ -2,17 +2,20 @@ forgejo:
   # Single replica for personal use (no HA at app layer; DB is HA)
   replicaCount: 1
 
+  # Force service name to "forgejo" (matches the cert/secret names in this chart)
+  fullnameOverride: forgejo
+
   image:
     repository: codeberg/forgejo/forgejo
     tag: "10.0"
     pullPolicy: IfNotPresent
 
   service:
-    type: ClusterIP
-    name: forgejo
     http:
+      type: ClusterIP
       port: 3000
     ssh:
+      type: ClusterIP
       port: 22
 
   # Persistence for repos, avatars, attachments, etc.
@@ -23,9 +26,23 @@ forgejo:
     accessModes:
       - ReadWriteOnce
 
-  # Disable built-in ingress (dmz/internalproxy handles it)
+  # Native Ingress (rendered by the chart) - Traefik ingress controller
+  # picks up networking.k8s.io/v1 Ingress via ingressClassName.
   ingress:
-    enabled: false
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
+    hosts:
+      - host: forgejo.durp.info
+        paths:
+          - path: /
+            pathType: Prefix
+            port: http
+    tls:
+      - secretName: forgejo-tls
+        hosts:
+          - forgejo.durp.info
 
   resources:
     requests:
