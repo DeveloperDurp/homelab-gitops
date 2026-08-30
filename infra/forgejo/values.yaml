@@ -1,0 +1,97 @@
+forgejo:
+  # Single replica for personal use (no HA at app layer; DB is HA)
+  replicaCount: 1
+
+  image:
+    registry: registry.durp.info
+    repository: forgejo/forgejo
+    tag: "10.0"
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    name: forgejo
+    http:
+      port: 3000
+    ssh:
+      port: 22
+
+  # Persistence for repos, avatars, attachments, etc.
+  persistence:
+    enabled: true
+    size: 100Gi
+    storageClass: longhorn
+    accessModes:
+      - ReadWriteOnce
+
+  # Disable built-in ingress (dmz/internalproxy handles it)
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  # Liveness/readiness probes
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  # Forgejo configuration - chart converts to app.ini
+  app:
+    ini:
+      APP_NAME: "Durp Forgejo"
+      RUN_USER: forgejo
+      RUN_MODE: prod
+
+      server:
+        DOMAIN: forgejo.durp.info
+        SSH_DOMAIN: forgejo.durp.info
+        ROOT_URL: "https://forgejo.durp.info/"
+        LFS_START_SERVER: true
+        PROTOCOL: https
+        DISABLE_SSH: false
+        SSH_PORT: 22
+        OFFLINE_MODE: false
+
+      database:
+        DB_TYPE: postgres
+        HOST: "forgejo-db-rw.forgejo.svc.cluster.local:5432"
+        NAME: forgejo
+        USER: forgejo
+        PASSWD: forgejo-db-secret
+        SCHEMA: public
+        SSL_MODE: require
+
+      security:
+        INSTALL_LOCK: true
+        SECRET_KEY: forgejo-app-secret
+        REVERSE_PROXY_LIMIT: "1"
+        REVERSE_PROXY_TRUSTED_PROXIES: "*"
+
+      service:
+        DISABLE_REGISTRATION: true
+        ENABLE_NOTIFY_MAIL: false
+        ENABLE_CAPTCHA: true
+        REQUIRE_SIGNIN_VIEW: false
+
+      webhook:
+        ALLOWED_HOST_LIST: "forgejo.durp.info"
+
+      session:
+        COOKIE_SECURE: true
+        COOKIE_SAMESITE: lax
+
+      log:
+        LEVEL: info
+        MODE: file
+        FILE_NAME: /data/forgejo/log/forgejo.log

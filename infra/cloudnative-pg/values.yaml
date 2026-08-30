@@ -1,0 +1,24 @@
+cloudnative-pg:
+  # Operator config
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Generate certificates via cert-manager (we have it)
+  certManager:
+    enabled: true
+
+  # Expose operator metrics for Prometheus
+  metrics:
+    enabled: true
+
+  # Image registry override (use local)
+  image:
+    registry: registry.durp.info
+    repository: cloudnative-pg/cloudnative-pg
+    pullPolicy: Always
