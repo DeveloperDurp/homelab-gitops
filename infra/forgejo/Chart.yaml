@@ -7,5 +7,5 @@ appVersion: "15.0.7"
 
 dependencies:
   - name: forgejo
-    repository: oci://code.forgejo.org/forgejo-helm/forgejo
+    repository: oci://code.forgejo.org/forgejo-helm
     version: 17.1.5
