@@ -6,8 +6,9 @@ forgejo:
   fullnameOverride: forgejo
 
   image:
-    repository: codeberg/forgejo/forgejo
-    tag: "17.1.5"
+    registry: code.forgejo.org
+    repository: forgejo/forgejo
+    tag: ""
     pullPolicy: Always
 
   service:
