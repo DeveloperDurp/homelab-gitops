@@ -3,9 +3,9 @@ name: forgejo
 description: Self-hosted Git service (formerly Gitea)
 type: application
 version: 0.0.1
-appVersion: "10.0.0"
+appVersion: "16.0.1"
 
 dependencies:
   - name: forgejo
-    repository: oci://codeberg.org/forgejo/forgejo
-    version: 10.0.1
+    repository: oci://codeberg.org/forgejo-contrib/forgejo
+    version: 16.0.1

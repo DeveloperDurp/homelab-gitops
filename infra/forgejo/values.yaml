@@ -7,7 +7,7 @@ forgejo:
 
   image:
     repository: codeberg/forgejo/forgejo
-    tag: "10.0"
+    tag: "16.0"
     pullPolicy: IfNotPresent
 
   service:
