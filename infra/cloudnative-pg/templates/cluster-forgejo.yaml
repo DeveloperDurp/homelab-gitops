@@ -32,7 +32,7 @@ spec:
         comment: "Forgejo application user"
         login: true
         passwordSecret:
-          secretName: forgejo-db-secret
+          name: forgejo-db-secret
         inRoles:
           - postgres
 
