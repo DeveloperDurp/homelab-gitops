@@ -1,0 +1,54 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: forgejo-db
+  namespace: forgejo
+spec:
+  # 2 instances: 1 primary + 1 replica for HA
+  instances: 2
+
+  # Storage for data
+  storage:
+    size: 20Gi
+    storageClass: longhorn
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+
+  # Bootstrap: create the forgejo database
+  bootstrap:
+    initdb:
+      database: forgejo
+      owner: forgejo
+      # Delay creation of replica until first WAL is archived
+      postInitSQL:
+        - CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+  # Generate passwords via Secret referenced below
+  managed:
+    roles:
+      - name: forgejo
+        ensure: present
+        comment: "Forgejo application user"
+        login: true
+        passwordSecret:
+          secretName: forgejo-db-secret
+        inRoles:
+          - postgres
+
+  # Resources per instance
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # PostgreSQL 16 (latest stable as of chart version)
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+
+  # Affinity: spread replicas across nodes
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname

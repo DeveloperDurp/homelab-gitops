@@ -1,0 +1,11 @@
+apiVersion: v2
+name: cloudnative-pg
+description: CloudNativePG operator for managing PostgreSQL on Kubernetes
+type: application
+version: 0.0.1
+appVersion: 0.0.1
+
+dependencies:
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    version: 0.22.1
