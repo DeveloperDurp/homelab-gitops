@@ -10,7 +10,7 @@ spec:
   # Storage for data
   storage:
     size: 20Gi
-    storageClass: longhorn
+    storageClass: nfs-client
     pvcTemplate:
       accessModes:
         - ReadWriteOnce
