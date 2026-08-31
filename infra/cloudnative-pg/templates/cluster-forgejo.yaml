@@ -45,8 +45,9 @@ spec:
       cpu: 1000m
       memory: 1Gi
 
-  # PostgreSQL 16 (latest stable as of chart version)
-  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  # PostgreSQL version managed by CNPG operator (defaults to 17 in v1.30)
+  # Uncomment to pin a specific version:
+  # imageName: ghcr.io/cloudnative-pg/postgresql:17
 
   # Affinity: spread replicas across nodes
   affinity:

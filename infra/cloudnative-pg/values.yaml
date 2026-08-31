@@ -9,6 +9,10 @@ cloudnative-pg:
       cpu: 500m
       memory: 512Mi
 
+  # Always pull the operator image to pick up new point releases
+  image:
+    pullPolicy: Always
+
   # Generate certificates via cert-manager (we have it)
   certManager:
     enabled: true
