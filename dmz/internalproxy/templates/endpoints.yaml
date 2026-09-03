@@ -26,7 +26,7 @@ metadata:
   name: infra-cluster
 subsets:
   - addresses:
-      - ip: 192.168.12.130
+      - ip: 192.168.12.141
     ports:
       - port: 443
 

@@ -9,9 +9,9 @@ spec:
     - match: Host(`forgejo.durp.info`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: unraid
-          port: 3000
-          scheme: http
+        - name: infra-cluster
+          port: 443
+          scheme: https
   tls:
     secretName: forgejo-tls
 
