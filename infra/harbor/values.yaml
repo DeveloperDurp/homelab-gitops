@@ -25,7 +25,14 @@ harbor:
         size: 50Gi
 
   database:
-    type: internal
+    type: external
+    external:
+      host: harbor-db-rw.harbor.svc
+      port: 5432
+      username: harbor
+      coreDatabase: harbor
+      existingSecret: harbor-db-secret
+      sslmode: disable
 
   redis:
     type: internal

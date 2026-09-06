@@ -1,0 +1,42 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: harbor-db
+  namespace: harbor
+spec:
+  instances: 2
+
+  storage:
+    size: 20Gi
+    storageClass: nfs-client
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+
+  bootstrap:
+    initdb:
+      database: harbor
+      owner: harbor
+
+  managed:
+    roles:
+      - name: harbor
+        ensure: present
+        comment: "Harbor application user"
+        login: true
+        passwordSecret:
+          name: harbor-db-secret
+        inRoles:
+          - postgres
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
