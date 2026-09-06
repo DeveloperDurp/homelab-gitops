@@ -16,7 +16,6 @@ spec:
   bootstrap:
     initdb:
       database: harbor
-      owner: harbor
 
   managed:
     roles:
