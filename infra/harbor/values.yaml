@@ -1,0 +1,43 @@
+harbor:
+  expose:
+    type: ingress
+    tls:
+      enabled: true
+      certSource: auto
+    ingress:
+      controller: default
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-production
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        core: harbor.durp.info
+        notary: notary.durp.info
+
+  externalURL: https://harbor.durp.info
+
+  persistence:
+    enabled: true
+    resourcePolicy: keep
+    persistentVolumeClaim:
+      registry:
+        storageClass: nfs-client
+        size: 50Gi
+
+  database:
+    type: internal
+
+  redis:
+    type: internal
+
+  trivy:
+    enabled: false
+
+  chartmuseum:
+    enabled: false
+
+  notary:
+    enabled: false
+
+  registry:
+    type: filesystem
