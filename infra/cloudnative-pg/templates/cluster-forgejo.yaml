@@ -19,7 +19,6 @@ spec:
   bootstrap:
     initdb:
       database: forgejo
-      owner: forgejo
       # Delay creation of replica until first WAL is archived
       postInitSQL:
         - CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
