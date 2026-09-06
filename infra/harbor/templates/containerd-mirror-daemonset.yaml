@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: containerd-mirror
+  namespace: kube-system
+  labels:
+    name: containerd-mirror
+spec:
+  selector:
+    matchLabels:
+      name: containerd-mirror
+  template:
+    metadata:
+      labels:
+        name: containerd-mirror
+    spec:
+      priorityClassName: system-node-critical
+      hostNetwork: true
+      hostPID: true
+      initContainers:
+        - name: write-config
+          image: alpine:3.21
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /host/certs.d/docker.io /host/certs.d/ghcr.io /host/certs.d/quay.io
+
+              cat > /host/certs.d/docker.io/hosts.toml << 'EOF'
+              server = "https://registry-1.docker.io"
+
+              [host."https://harbor.durp.info/v2/dockerhub-proxy"]
+                capabilities = ["pull", "resolve"]
+                override_path = true
+              EOF
+
+              cat > /host/certs.d/ghcr.io/hosts.toml << 'EOF'
+              server = "https://ghcr.io"
+
+              [host."https://harbor.durp.info/v2/ghcr-proxy"]
+                capabilities = ["pull", "resolve"]
+                override_path = true
+              EOF
+
+              cat > /host/certs.d/quay.io/hosts.toml << 'EOF'
+              server = "https://quay.io"
+
+              [host."https://harbor.durp.info/v2/quay-proxy"]
+                capabilities = ["pull", "resolve"]
+                override_path = true
+              EOF
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          volumeMounts:
+            - name: certs-d
+              mountPath: /host/certs.d
+              mountPropagation: HostToContainer
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+      tolerations:
+        - operator: Exists
+      volumes:
+        - name: certs-d
+          hostPath:
+            path: /etc/containerd/certs.d
+            type: DirectoryOrCreate
