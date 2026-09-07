@@ -20,6 +20,23 @@ This repository stores Kubernetes configuration managed by Argo CD.
   their referenced paths and pipeline wiring exist before relying on them.
 - `renovate.json`: Renovate configuration.
 
+## Ingress across clusters
+
+DMZ is the ingress entry point for all clusters. Exposing a service in another
+cluster requires a matching DMZ ingress route; a destination-cluster ingress
+alone does not complete the traffic path.
+
+- Add or update the hostname route in `dmz/internalproxy/templates/`, following
+  an existing route to the same destination cluster.
+- Reuse the destination Service and endpoints in `endpoints.yaml`. Match the
+  backend port and scheme to the destination ingress and preserve the hostname.
+- Include the hostname's Certificate/TLS Secret reference and external-dns
+  resource using the existing patterns. Check the destination ingress accepts
+  the same hostname.
+- Trace the full path: DNS to DMZ, DMZ TLS and route, destination cluster ingress,
+  then application Service. Render both affected charts and document live checks
+  in the MR. `internal-proxy` deploys this chart to DMZ's `internalproxy` namespace.
+
 ## Required change process
 
 1. Read the relevant files and callers. Check the working tree and preserve
