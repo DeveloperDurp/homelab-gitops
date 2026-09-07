@@ -6,4 +6,4 @@ nfs-subdir-external-provisioner:
     name: nfs-client
     defaultClass: true
     reclaimPolicy: Delete
-    archiveOnDelete: false
+    archiveOnDelete: true
