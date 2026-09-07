@@ -4,8 +4,9 @@ metadata:
   name: forgejo-db
   namespace: forgejo
 spec:
-  # 2 instances: 1 primary + 1 replica for HA
-  instances: 2
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
 
   # Storage for data
   storage:
@@ -25,16 +26,10 @@ spec:
   # This avoids the broken roles_reconciler in CNPG 1.30 (which logs
   # 'pending-roles' indefinitely without running ALTER ROLE).
   #
-  # Note: the forgejo chart today silently falls back to sqlite because
-  # its env-to-ini plugin doesn't resolve the database.PASSWD Secret
-  # reference (separate bug). The forgejo-db cluster exists but is
-  # unused. Switching to the auto-generated app Secret pattern makes
-  # the database ready when the chart config is fixed.
   bootstrap:
     initdb:
       database: forgejo
       owner: forgejo
-      # Delay creation of replica until first WAL is archived
       postInitSQL:
         - CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -46,10 +41,13 @@ spec:
       cpu: 1000m
       memory: 1Gi
 
-  # PostgreSQL version managed by CNPG operator (defaults to 17 in v1.30)
-  # Uncomment to pin a specific version:
-  # imageName: ghcr.io/cloudnative-pg/postgresql:17
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
 
   affinity:
     enablePodAntiAffinity: true
+    podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
