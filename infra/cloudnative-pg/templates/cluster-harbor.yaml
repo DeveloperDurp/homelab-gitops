@@ -15,18 +15,23 @@ spec:
       accessModes:
         - ReadWriteOnce
 
-  # Bootstrap: create the harbor database (owner set via DatabaseRole below)
-  # ponytail: dropped bootstrap.initdb.owner because CNPG's inline
-  # managed.roles.passwordSecret doesn't reconcile when the role already
-  # exists from initdb. DatabaseRole CR is the recommended path in CNPG 1.28+.
+  # Bootstrap: create the harbor database with the harbor user as owner.
+  # CNPG auto-generates a random password for the bootstrap owner and
+  # exposes it via the <cluster-name>-app Secret (basic-auth format
+  # with username, password, host, port, dbname, uri, jdbc). The harbor
+  # chart reads this Secret directly — no managed.roles, no
+  # DatabaseRole CR, no external secret manager involvement.
+  #
+  # This avoids the broken roles_reconciler in CNPG 1.30 (which logs
+  # 'pending-roles' indefinitely without running ALTER ROLE).
+  #
+  # See https://cloudnative-pg.io/docs/1.30/declarative_role_management/
+  # and the auto-generated application secrets section of the bootstrap
+  # docs.
   bootstrap:
     initdb:
       database: harbor
-
-  # managed.roles block REMOVED — it was triggering reconciliation but never
-  # actually running ALTER ROLE. Replaced with a DatabaseRole CR in
-  # databaserole-harbor.yaml which is the documented CNPG-native mechanism.
-  # See https://cloudnative-pg.io/docs/current/declarative_role_management/
+      owner: harbor
 
   resources:
     requests:
