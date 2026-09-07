@@ -4,8 +4,7 @@ metadata:
   name: harbor-db
   namespace: harbor
 spec:
-  # 2 instances: 1 primary + 1 replica for HA
-  instances: 2
+  instances: 3
 
   # Storage for data
   storage:
@@ -38,9 +37,16 @@ spec:
       cpu: 100m
       memory: 256Mi
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 1000m
+      memory: 1Gi
+
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
 
   affinity:
     enablePodAntiAffinity: true
+    podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
