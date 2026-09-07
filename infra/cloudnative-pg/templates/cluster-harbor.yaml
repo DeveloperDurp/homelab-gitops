@@ -13,21 +13,17 @@ spec:
       accessModes:
         - ReadWriteOnce
 
+  # Bootstrap: create the harbor database (owner is created by the
+  # DatabaseRole CR in databaserole-harbor.yaml — the inline
+  # managed.roles block has a known broken reconciler in CNPG 1.30).
   bootstrap:
     initdb:
       database: harbor
-      owner: harbor
 
-  managed:
-    roles:
-      - name: harbor
-        ensure: present
-        comment: "Harbor application user"
-        login: true
-        passwordSecret:
-          name: harbor-db-secret
-        inRoles:
-          - postgres
+  # managed.roles block REMOVED — its roles_reconciler never actually
+  # runs ALTER ROLE. Replaced by a dedicated DatabaseRole CR which has
+  # its own controller that properly applies passwordSecret on every
+  # reconciliation. See databaserole-harbor.yaml.
 
   resources:
     requests:
