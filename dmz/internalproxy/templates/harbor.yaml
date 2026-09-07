@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: harbor-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`harbor.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: infra-cluster
+          port: 443
+          scheme: https
+  tls:
+    secretName: harbor-tls
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbor-tls
+spec:
+  secretName: harbor-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "harbor.durp.info"
+  dnsNames:
+    - "harbor.durp.info"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: harbor-external-dns
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: harbor.durp.info
+spec:
+  type: ExternalName
+  externalName: durp.info
