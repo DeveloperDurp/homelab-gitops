@@ -4,8 +4,10 @@ metadata:
   name: harbor-db
   namespace: harbor
 spec:
+  # 2 instances: 1 primary + 1 replica for HA
   instances: 2
 
+  # Storage for data
   storage:
     size: 20Gi
     storageClass: nfs-client
@@ -13,20 +15,18 @@ spec:
       accessModes:
         - ReadWriteOnce
 
+  # Bootstrap: create the harbor database (owner set via DatabaseRole below)
+  # ponytail: dropped bootstrap.initdb.owner because CNPG's inline
+  # managed.roles.passwordSecret doesn't reconcile when the role already
+  # exists from initdb. DatabaseRole CR is the recommended path in CNPG 1.28+.
   bootstrap:
     initdb:
       database: harbor
 
-  managed:
-    roles:
-      - name: harbor
-        ensure: present
-        comment: "Harbor application user"
-        login: true
-        passwordSecret:
-          name: harbor-db-secret
-        inRoles:
-          - postgres
+  # managed.roles block REMOVED — it was triggering reconciliation but never
+  # actually running ALTER ROLE. Replaced with a DatabaseRole CR in
+  # databaserole-harbor.yaml which is the documented CNPG-native mechanism.
+  # See https://cloudnative-pg.io/docs/current/declarative_role_management/
 
   resources:
     requests:
