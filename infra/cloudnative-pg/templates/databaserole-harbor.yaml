@@ -1,22 +1,27 @@
 # DatabaseRole CR for the harbor application user.
 #
-# CNPG's inline managed.roles block (on the Cluster spec) has a known
-# reconciliation issue: it logs "pending-roles" indefinitely without
-# actually running ALTER ROLE. DatabaseRole is a separate CR type with
-# its own dedicated controller that properly applies the password from
-# passwordSecret on every reconciliation.
+# CNPG's inline managed.roles block (on the Cluster spec) has a broken
+# roles_reconciler in CNPG 1.30 — it logs "pending-roles" indefinitely
+# without ever running ALTER ROLE. DatabaseRole is a separate CR type
+# with its own dedicated controller (instance-database-role) that
+# properly applies the password from passwordSecret on every
+# reconciliation. This is the documented recommended path in CNPG 1.28+.
 #
-# This is the documented recommended path in CNPG 1.28+.
 # See https://cloudnative-pg.io/docs/current/declarative_role_management/
 apiVersion: postgresql.cnpg.io/v1
 kind: DatabaseRole
 metadata:
+  # K8s resource name. Unique within the namespace.
   name: harbor
   namespace: harbor
 spec:
-  # Owning Cluster: the DatabaseRole controller reconciles against
-  # the primary of this cluster.
-  owner: harbor-db
+  # In-cluster PostgreSQL role name (REQUIRED).
+  name: harbor
+
+  # Owning Cluster (REQUIRED). The DatabaseRole controller reconciles
+  # against the primary of this cluster.
+  cluster:
+    name: harbor-db
 
   # Ensure the role exists (vs 'absent' to drop it).
   ensure: present
