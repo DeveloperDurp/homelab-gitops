@@ -111,6 +111,9 @@ forgejo:
         ENABLE_CAPTCHA: true
         REQUIRE_SIGNIN_VIEW: false
 
+      oauth2_client:
+        ENABLE_AUTO_REGISTRATION: true
+
       webhook:
         ALLOWED_HOST_LIST: "forgejo.durp.info"
 
