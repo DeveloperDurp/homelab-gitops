@@ -56,7 +56,6 @@ forgejo:
 
   gitea:
     admin:
-      existingSecret: forgejo-admin
       passwordMode: initialOnlyNoReset
 
     additionalConfigFromEnvs:
