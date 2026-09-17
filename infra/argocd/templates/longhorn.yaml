@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    repoURL: https://forgejo.durp.info/DeveloperDurp/homelab-gitops.git
     targetRevision: main
     path: infra/longhorn
   destination:
