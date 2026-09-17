@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
+    repoURL: https://github.com/DeveloperDurp/homelab-gitops.git
     targetRevision: main
     path: infra/argocd
   destination:
