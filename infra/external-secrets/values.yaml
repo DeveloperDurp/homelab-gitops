@@ -19,7 +19,7 @@ external-secrets:
       enabled: false
 
   image:
-    repository: registry.durp.info/external-secrets/external-secrets
+    #repository: registry.durp.info/external-secrets/external-secrets
     pullPolicy: Always
 
   extraVolumes:
