@@ -6,28 +6,28 @@ longhorn:
   image:
     longhorn:
       engine:
-        repository: longhornio/longhorn-engine
+        repository: harbor.durp.info/dockerhub/longhornio/longhorn-engine
       manager:
-        repository: longhornio/longhorn-manager
+        repository: harbor.durp.info/dockerhub/longhornio/longhorn-manager
       ui:
-        repository: longhornio/longhorn-ui
+        repository: harbor.durp.info/dockerhub/longhornio/longhorn-ui
       instanceManager:
-        repository: longhornio/longhorn-instance-manager
+        repository: harbor.durp.info/dockerhub/longhornio/longhorn-instance-manager
       shareManager:
-        repository: longhornio/longhorn-share-manager
+        repository: harbor.durp.info/dockerhub/longhornio/longhorn-share-manager
       backingImageManager:
-        repository: longhornio/backing-image-manager
+        repository: harbor.durp.info/dockerhub/longhornio/backing-image-manager
     csi:
       attacher:
-        repository: longhornio/csi-attacher
+        repository: harbor.durp.info/dockerhub/longhornio/csi-attacher
       provisioner:
-        repository: longhornio/csi-provisioner
+        repository: harbor.durp.info/dockerhub/longhornio/csi-provisioner
       nodeDriverRegistrar:
-        repository: longhornio/csi-node-driver-registrar
+        repository: harbor.durp.info/dockerhub/longhornio/csi-node-driver-registrar
       resizer:
-        repository: longhornio/csi-resizer
+        repository: harbor.durp.info/dockerhub/longhornio/csi-resizer
       snapshotter:
-        repository: longhornio/csi-snapshotter
+        repository: harbor.durp.info/dockerhub/longhornio/csi-snapshotter
     pullPolicy: Always
   
   service:

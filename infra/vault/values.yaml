@@ -12,7 +12,7 @@ vault:
   
   server:
     image:
-      repository: "hashicorp/vault"
+      repository: "harbor.durp.info/dockerhub/hashicorp/vault"
     resources:
       requests:
         memory: 1Gi

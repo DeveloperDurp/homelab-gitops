@@ -1,8 +1,8 @@
 gitlab-runner:
 
   image:
-    registry: registry.durp.info
-    image: gitlab-org/gitlab-runner
+    registry: harbor.durp.info
+    image: dockerhub/gitlab-org/gitlab-runner
 
   imagePullPolicy: Always
   gitlabUrl: https://gitlab.durp.info/
