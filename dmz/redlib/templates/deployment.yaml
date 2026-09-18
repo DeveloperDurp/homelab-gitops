@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: redlib
-        image: registry.durp.info/redlib/redlib:latest
+        image: harbor.durp.info/quay/redlib/redlib:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

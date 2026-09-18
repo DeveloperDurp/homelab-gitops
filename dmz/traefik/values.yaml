@@ -1,7 +1,6 @@
 traefik:
   image:
-    #    registry: registry.durp.info
-    #    repository: traefik
+    registry: harbor.durp.info/dockerhub
     pullPolicy: Always
 
   providers:

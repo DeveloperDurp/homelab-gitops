@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: openspeedtest
-        image: registry.durp.info/openspeedtest/latest
+        image: harbor.durp.info/dockerhub/openspeedtest/latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

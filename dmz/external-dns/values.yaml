@@ -1,10 +1,11 @@
 external-dns:
   global:
-    imageRegistry: "registry.durp.info"
+    imageRegistry: harbor.durp.info/dockerhub
     security:
       allowInsecureImages: true
 
   image:
+    repository: bitnamilegacy/external-dns
     pullPolicy: Always
 
   txtPrefix: "dmz-"

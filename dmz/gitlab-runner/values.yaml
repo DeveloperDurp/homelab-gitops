@@ -33,7 +33,7 @@ gitlab-runner:
       [[runners]]
         [runners.kubernetes]
           namespace = "{{.Release.Namespace}}"
-          image = "ubuntu:22.04"
+          image = "harbor.durp.info/dockerhub/library/ubuntu:22.04"
           privileged = true
 
     executor: kubernetes

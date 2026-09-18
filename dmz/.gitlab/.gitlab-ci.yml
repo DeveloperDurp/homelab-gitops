@@ -8,7 +8,7 @@ variables:
   GITLAB_TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/dmz
 
 image:
-  name: registry.durp.info/opentofu/opentofu:latest
+  name: harbor.durp.info/github/opentofu/opentofu:latest
   entrypoint: [""]
 
 .tf-init:

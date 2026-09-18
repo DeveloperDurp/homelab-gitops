@@ -47,7 +47,7 @@ external-secrets:
     log:
       level: debug
     image:
-      repository: registry.durp.info/external-secrets/external-secrets
+      repository: harbor.durp.info/github/external-secrets/external-secrets
       pullPolicy: Always
 
     extraVolumes:
@@ -76,7 +76,7 @@ external-secrets:
       level: debug
 
     image:
-      repository: registry.durp.info/external-secrets/external-secrets
+      repository: harbor.durp.info/github/external-secrets/external-secrets
       pullPolicy: Always
       tag: ""
 

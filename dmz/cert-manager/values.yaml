@@ -1,8 +1,9 @@
 cert-manager:
+  imageRegistry: harbor.durp.info/quay
   crds:
     enabled: true
   image:
-    repository: harbor.durp.info/quay/jetstack/cert-manager-controller
+    repository: ""
     pullPolicy: Always
   replicaCount: 3
   extraArgs:
@@ -15,11 +16,11 @@ cert-manager:
       - "1.0.0.1"
   webhook:
     image:
-      repository: harbor.durp.info/quay/jetstack/cert-manager-webhook
+      repository: ""
       pullPolicy: Always
   cainjector:
     image:
-      repository: harbor.durp.info/quay/jetstack/cert-manager-cainjector
+      repository: ""
       pullPolicy: Always
 
   hostAliases:

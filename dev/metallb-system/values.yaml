@@ -1,0 +1,10 @@
+metallb:
+  controller:
+    image:
+      repository: harbor.durp.info/quay/metallb/controller
+  speaker:
+    image:
+      repository: harbor.durp.info/quay/metallb/speaker
+    frr:
+      image:
+        repository: harbor.durp.info/quay/frrouting/frr

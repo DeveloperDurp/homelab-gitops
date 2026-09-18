@@ -1,4 +1,9 @@
 vault:
+  injector:
+    image:
+      repository: harbor.durp.info/dockerhub/hashicorp/vault-k8s
+    agentImage:
+      repository: harbor.durp.info/dockerhub/hashicorp/vault
   global:
     enabled: true
     tlsDisable: false

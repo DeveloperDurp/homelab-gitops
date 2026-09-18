@@ -1,12 +1,15 @@
 crowdsec:
   #
   image:
-    repository: registry.durp.info/crowdsecurity/crowdsec
+    repository: harbor.durp.info/dockerhub/crowdsecurity/crowdsec
     pullPolicy: Always
 
   # for raw logs format: json or cri (docker|containerd)
   container_runtime: containerd
   agent:
+    wait_for_lapi:
+      image:
+        repository: harbor.durp.info/dockerhub/library/busybox
     # Specify each pod whose logs you want to process
     acquisition:
       # The namespace where the pod is located
@@ -19,6 +22,9 @@ crowdsec:
       - name: COLLECTIONS
         value: "crowdsecurity/traefik"
   lapi:
+    wait_for_lapi:
+      image:
+        repository: harbor.durp.info/dockerhub/library/busybox
     envFrom:
       - secretRef:
           name: enroll-key

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: littlelink
-        image: registry.durp.info/techno-tim/littlelink-server:latest
+        image: harbor.durp.info/github/techno-tim/littlelink-server:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
