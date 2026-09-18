@@ -1,7 +1,7 @@
 gitlab-runner:
 
   image:
-    registry: registry.durp.info
+    registry: harbor.durp.info/gitlab
     image: gitlab-org/gitlab-runner
 
   imagePullPolicy: Always
