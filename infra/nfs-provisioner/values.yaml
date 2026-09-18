@@ -1,4 +1,6 @@
 nfs-subdir-external-provisioner:
+  image:
+    repository: harbor.durp.info/k8s/sig-storage/nfs-subdir-external-provisioner
   nfs:
     server: unraid.infra.durp.loc
     path: /mnt/user/talos-infra

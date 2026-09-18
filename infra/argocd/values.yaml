@@ -2,7 +2,7 @@ argo-cd:
   global:
     revisionHistoryLimit: 1
     image:
-#      repository: registry.durp.info/argoproj/argocd
+      repository: harbor.durp.info/quay/argoproj/argocd
       imagePullPolicy: Always
 
   controller:
@@ -33,8 +33,14 @@ argo-cd:
   dex:
     enabled: true
     image:
-#      repository: registry.durp.info/dexidp/dex
+      repository: harbor.durp.info/github/dexidp/dex
       imagePullPolicy: Always
+  redis:
+    image:
+      repository: harbor.durp.info/dockerhub/library/redis
+    exporter:
+      image:
+        repository: harbor.durp.info/github/oliver006/redis_exporter
 
   configs:
     cm:

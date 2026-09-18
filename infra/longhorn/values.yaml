@@ -1,5 +1,6 @@
 longhorn: 
   global:
+    imageRegistry: harbor.durp.info/dockerhub
     cattle:
       systemDefaultRegistry: ""
   

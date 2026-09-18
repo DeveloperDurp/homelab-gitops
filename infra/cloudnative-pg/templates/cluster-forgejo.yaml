@@ -6,7 +6,7 @@ metadata:
 spec:
   instances: 3
 
-  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
+  imageName: harbor.durp.info/github/cloudnative-pg/postgresql:18.4-system-trixie
 
   # Storage for data
   storage:

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: nebula-sync
-        image: registry.durp.info/lovelaze/nebula-sync:latest
+        image: harbor.durp.info/dockerhub/lovelaze/nebula-sync:latest
         imagePullPolicy: Always
         env:
           - name: PRIMARY
@@ -70,4 +70,3 @@ spec:
             value: "true"
           - name: SYNC_GRAVITY_CLIENT_BY_GROUP
             value: "true"
-

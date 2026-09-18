@@ -1,7 +1,16 @@
-controller:
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      memory: 256Mi
+metallb:
+  controller:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+    image:
+      repository: harbor.durp.info/quay/metallb/controller
+  speaker:
+    image:
+      repository: harbor.durp.info/quay/metallb/speaker
+    frr:
+      image:
+        repository: harbor.durp.info/quay/frrouting/frr

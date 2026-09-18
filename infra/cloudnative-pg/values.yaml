@@ -11,6 +11,7 @@ cloudnative-pg:
 
   # Always pull the operator image to pick up new point releases
   image:
+    repository: harbor.durp.info/github/cloudnative-pg/cloudnative-pg
     pullPolicy: Always
 
   # Generate certificates via cert-manager (we have it)

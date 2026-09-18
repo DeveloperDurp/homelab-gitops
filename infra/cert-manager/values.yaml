@@ -1,4 +1,5 @@
 cert-manager:
+  imageRegistry: harbor.durp.info/quay
   crds:
     enabled: true
   image:

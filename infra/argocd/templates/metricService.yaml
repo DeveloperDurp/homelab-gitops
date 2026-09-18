@@ -11,6 +11,8 @@ spec:
     targetRevision: 3.12.1
     helm:
       parameters:
+        - name: image.repository
+          value: harbor.durp.info/k8s/metrics-server/metrics-server
         - name: args[0]
           value: --kubelet-insecure-tls
         - name: args[1]
@@ -39,6 +41,8 @@ spec:
     targetRevision: 3.12.1
     helm:
       parameters:
+        - name: image.repository
+          value: harbor.durp.info/k8s/metrics-server/metrics-server
         - name: args[0]
           value: --kubelet-insecure-tls
         - name: args[1]
@@ -67,6 +71,8 @@ spec:
     targetRevision: 3.12.1
     helm:
       parameters:
+        - name: image.repository
+          value: harbor.durp.info/k8s/metrics-server/metrics-server
         - name: args[0]
           value: --kubelet-insecure-tls
         - name: args[1]

@@ -7,10 +7,14 @@ forgejo:
   fullnameOverride: forgejo
 
   image:
-    registry: code.forgejo.org
+    registry: harbor.durp.info/forgejo
     repository: forgejo/forgejo
     tag: ""
     pullPolicy: Always
+
+  test:
+    image:
+      name: harbor.durp.info/dockerhub/library/busybox
 
   service:
     http:
