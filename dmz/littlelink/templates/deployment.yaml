@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: littlelink
-        image: harbor.durp.info/dockerhub/techno-tim/littlelink-server:latest
+        image: harbor.durp.info/dockerhub/timothystewart6/littlelink-server:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
