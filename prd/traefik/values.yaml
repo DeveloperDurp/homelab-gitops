@@ -1,6 +1,6 @@
 traefik:
   image:
-    #    registry: registry.durp.info
+    #    registry: harbor.durp.info
     #    repository: traefik
     pullPolicy: Always
 

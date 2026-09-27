@@ -15,11 +15,11 @@ authentik:
             key: secretkey
     revisionHistoryLimit: 1
     image:
-      repository: registry.durp.info/goauthentik/server
+      repository: harbor.durp.info/github/goauthentik/server
       pullPolicy: Always
   authentik:
     outposts:
-      container_image_base: registry.durp.info/goauthentik/%(type)s:%(version)s
+      container_image_base: harbor.durp.info/github/goauthentik/%(type)s:%(version)s
       ingress:
         enabled: false
     postgresql:
@@ -47,8 +47,8 @@ authentik:
   postgresql:
     enabled: true
     image:
-      registry: registry.durp.info
-      repository: library/postgres
+      registry: harbor.durp.info
+      repository: dockerhub/library/postgres
       pullPolicy: Always
     postgresqlUsername: "authentik"
     postgresqlDatabase: "authentik"
@@ -90,8 +90,8 @@ authentik:
           cpu: 500m
           memory: 256Mi
     image:
-      registry: registry.durp.info
-      repository: library/redis
+      registry: harbor.durp.info
+      repository: dockerhub/library/redis
       pullPolicy: Always
     architecture: standalone
     auth:

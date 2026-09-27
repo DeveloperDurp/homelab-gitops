@@ -7,7 +7,7 @@
 
 image:
   # -- image repository
-  repository: registry.durp.info/searxng/searxng
+  repository: harbor.durp.info/dockerhub/searxng/searxng
   # -- image tag
   tag: latest
   # -- image pull policy
