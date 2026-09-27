@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: searxng
-          image: registry.durp.info/searxng/searxng:latest
+          image: harbor.durp.info/dockerhub/searxng/searxng:latest
           imagePullPolicy: Always
           ports:
             - name: http
