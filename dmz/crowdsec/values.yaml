@@ -1,7 +1,7 @@
 crowdsec:
   #
   image:
-    repository: registry.durp.info/crowdsecurity/crowdsec
+    repository: harbor.durp.info/dockerhub/crowdsecurity/crowdsec
     pullPolicy: Always
 
   # for raw logs format: json or cri (docker|containerd)

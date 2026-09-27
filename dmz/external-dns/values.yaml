@@ -1,6 +1,6 @@
 external-dns:
   global:
-    imageRegistry: "registry.durp.info"
+    imageRegistry: "harbor.durp.info"
     security:
       allowInsecureImages: true
 
