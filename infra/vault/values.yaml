@@ -13,6 +13,7 @@ vault:
   server:
     image:
       repository: "hashicorp/vault"
+      tag: "1.19.5"
     resources:
       requests:
         memory: 1Gi
@@ -136,3 +137,7 @@ vault:
     serviceType: "LoadBalancer"
     serviceNodePort: null
     externalPort: 8200
+
+  injector:
+    agentImage:
+      tag: "1.19.5"
