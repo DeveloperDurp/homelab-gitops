@@ -16,6 +16,7 @@ authentik:
     revisionHistoryLimit: 1
     image:
       repository: harbor.durp.info/github/goauthentik/server
+      tag: "2026.2.7"
       pullPolicy: Always
   authentik:
     outposts:
