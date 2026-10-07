@@ -10,4 +10,9 @@ vault:
       limits:
         memory: 256Mi
         cpu: 250m
-  
+
+  injector:
+    image:
+      tag: "1.7.6"
+    agentImage:
+      tag: "1.21.4"
