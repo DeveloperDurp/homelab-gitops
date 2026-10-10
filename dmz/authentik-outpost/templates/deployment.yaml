@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: outpost
-          image: harbor.durp.info/dockerhub/ghcr.io/goauthentik/proxy:latest
+          image: harbor.durp.info/github/goauthentik/proxy:2026.2.7
           imagePullPolicy: Always
           args:
             - server
