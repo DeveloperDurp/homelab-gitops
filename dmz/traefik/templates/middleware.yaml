@@ -5,7 +5,7 @@ metadata:
   namespace: traefik
 spec:
   forwardAuth:
-    address: http://ak-outpost-authentik-dmz-outpost.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik?rd=$scheme://$http_host$request_uri
+    address: http://ak-outpost-authentik-dmz-outpost.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
     trustForwardHeader: true
     authResponseHeaders:
       - X-authentik-username
