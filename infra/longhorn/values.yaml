@@ -86,7 +86,15 @@ longhorn:
     backupstorePollInterval: ~
     taintToleration: ~
     systemManagedComponentsNodeSelector: ~
-    priorityClass: ~
+    # worker02 incident 2026-10-09: leaked instance-manager hit 13GB RSS on a 16GB
+    # node; the OOM controller then killed the BestEffort csi/engine pods, taking
+    # the node into a NotReady flap loop. longhorn-critical (PriorityClass the
+    # chart creates, value 1e9) applied via here + per-component priorityClass
+    # keeps LH pods out of the OOM victim list; rebuild cap prevents stampedes.
+    priorityClass: longhorn-critical
+    # CSI pods (attacher/provisioner/plugin...) have no requests -> BestEffort ->
+    # first OOM-kill victims whenever a node squeezes. Give them Burstable shape.
+    systemManagedCSIComponentsResourceLimits: '{"longhorn-csi-plugin":{"requests":{"cpu":"100m","memory":"256Mi"},"limits":{"memory":"512Mi"}},"csi-attacher":{"requests":{"cpu":"50m","memory":"128Mi"},"limits":{"memory":"256Mi"}},"csi-provisioner":{"requests":{"cpu":"50m","memory":"128Mi"},"limits":{"memory":"256Mi"}},"csi-resizer":{"requests":{"cpu":"50m","memory":"100Mi"},"limits":{"memory":"256Mi"}},"csi-snapshotter":{"requests":{"cpu":"50m","memory":"100Mi"},"limits":{"memory":"256Mi"}},"node-driver-registrar":{"requests":{"cpu":"25m","memory":"64Mi"},"limits":{"memory":"128Mi"}},"longhorn-liveness-probe":{"requests":{"cpu":"25m","memory":"64Mi"},"limits":{"memory":"128Mi"}}}'
     autoSalvage: ~
     autoDeletePodWhenVolumeDetachedUnexpectedly: ~
     disableSchedulingOnCordonedNode: ~
@@ -96,7 +104,7 @@ longhorn:
     mkfsExt4Parameters: ~
     disableReplicaRebuild: ~
     replicaReplenishmentWaitInterval: ~
-    concurrentReplicaRebuildPerNodeLimit: ~
+    concurrentReplicaRebuildPerNodeLimit: 2
     disableRevisionCounter: ~
     systemManagedPodsImagePullPolicy: ~
     allowVolumeCreationWithDegradedAvailability: ~
@@ -123,20 +131,20 @@ longhorn:
     registrySecret: ~
   
   longhornManager:
-    priorityClass: ~
+    priorityClass: longhorn-critical
     tolerations: []
-    resources:
-      requests:
-        cpu: 250m
-        memory: 256Mi
-      limits:
-        memory: 512Mi
     ## If you want to set tolerations for Longhorn Manager DaemonSet, delete the `[]` in the line above
     ## and uncomment this example block
     # - key: "key"
     #   operator: "Equal"
     #   value: "value"
     #   effect: "NoSchedule"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 300Mi
+      limits:
+        memory: 768Mi
     nodeSelector: {}
     ## If you want to set node selector for Longhorn Manager DaemonSet, delete the `{}` in the line above
     ## and uncomment this example block
@@ -144,7 +152,7 @@ longhorn:
     #  label-key2: "label-value2"
   
   longhornDriver:
-    priorityClass: ~
+    priorityClass: longhorn-critical
     tolerations: []
     ## If you want to set tolerations for Longhorn Driver Deployer Deployment, delete the `[]` in the line above
     ## and uncomment this example block
@@ -152,6 +160,12 @@ longhorn:
     #   operator: "Equal"
     #   value: "value"
     #   effect: "NoSchedule"
+    resources:
+      requests:
+        cpu: 150m
+        memory: 200Mi
+      limits:
+        memory: 512Mi
     nodeSelector: {}
     ## If you want to set node selector for Longhorn Driver Deployer Deployment, delete the `{}` in the line above
     ## and uncomment this example block
@@ -167,6 +181,12 @@ longhorn:
     #   operator: "Equal"
     #   value: "value"
     #   effect: "NoSchedule"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
     nodeSelector: {}
     ## If you want to set node selector for Longhorn UI Deployment, delete the `{}` in the line above
     ## and uncomment this example block
