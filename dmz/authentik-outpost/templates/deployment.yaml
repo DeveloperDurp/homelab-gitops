@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: authentik
+  name: ak-outpost-authentik-dmz-outpost
+  labels:
+    app.kubernetes.io/name: authentik-outpost
+    app.kubernetes.io/instance: dmz-outpost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: authentik-outpost
+      app.kubernetes.io/instance: dmz-outpost
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: authentik-outpost
+        app.kubernetes.io/instance: dmz-outpost
+    spec:
+      containers:
+        - name: outpost
+          image: harbor.durp.info/dockerhub/ghcr.io/goauthentik/proxy:latest
+          imagePullPolicy: Always
+          args:
+            - server
+          ports:
+            - name: http
+              containerPort: 9000
+          env:
+            - name: AUTHENTIK_HOST
+              value: https://authentik.durp.info
+            - name: AUTHENTIK_INSECURE
+              value: "false"
+            - name: AUTHENTIK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-dmz-token
+                  key: AUTHENTIK_TOKEN
+          readinessProbe:
+            httpGet:
+              path: /outpost.goauthentik.io/ping
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /outpost.goauthentik.io/ping
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
