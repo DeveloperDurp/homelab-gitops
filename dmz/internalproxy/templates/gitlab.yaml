@@ -49,9 +49,11 @@ spec:
     - protocol: TCP
       port: 443
       targetPort: 443
+      name: https
     - protocol: TCP
       port: 9022
       targetPort: 9022
+      name: ssh
       
 ---
 apiVersion: traefik.io/v1alpha1
