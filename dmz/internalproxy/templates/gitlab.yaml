@@ -87,7 +87,36 @@ spec:
           serversTransport: gitlab-backend-tls          
   tls:
     secretName: gitlab-tls
-
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab-ingress-old
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gitlab-old.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: unraid
+          port: 9443
+          scheme: https         
+  tls:
+    secretName: gitlab-old-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gitlab-old-tls
+spec:
+  secretName: gitlab-old-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "gitlab-old.durp.info"
+  dnsNames:
+    - "gitlab-old.durp.info"    
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
