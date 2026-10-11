@@ -33,7 +33,12 @@ subsets:
   - addresses:
       - ip: 192.168.12.80
     ports:
-      - port: 443
+      - name: https
+        port: 443
+        protocol: TCP
+      - name: ssh
+        port: 9022
+        protocol: TCP        
 ---
 apiVersion: v1
 kind: Service
