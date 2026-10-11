@@ -46,7 +46,7 @@ metadata:
   name: gitlab-cluster
 spec:
   ports:
-    - protocol: TCP
+    - protocol: https
       port: 443
       targetPort: 443
       name: https
