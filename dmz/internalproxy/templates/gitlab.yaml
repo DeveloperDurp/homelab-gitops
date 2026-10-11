@@ -82,7 +82,7 @@ spec:
       kind: Rule
       services:
         - name: gitlab-cluster
-          port: 9443
+          port: 443
           scheme: https
   tls:
     secretName: gitlab-tls
