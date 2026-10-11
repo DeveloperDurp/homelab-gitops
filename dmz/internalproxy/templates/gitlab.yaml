@@ -25,6 +25,30 @@
 #        protocol: TCP
 #
 #---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gitlab-cluster
+subsets:
+  - addresses:
+      - ip: 192.168.12.80
+    ports:
+      - port: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-cluster
+spec:
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+    - protocol: TCP
+      port: 9022
+      targetPort: 9022
+      
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
@@ -35,7 +59,7 @@ spec:
   routes:
     - match: HostSNI(`*`)
       services:
-        - name: unraid
+        - name: gitlab-cluster
           port: 9022
 
 ---
@@ -50,7 +74,7 @@ spec:
     - match: Host(`gitlab.durp.info`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: unraid
+        - name: gitlab-cluster
           port: 9443
           scheme: https
   tls:
@@ -93,7 +117,7 @@ spec:
     - match: Host(`images.durp.info`)
       kind: Rule
       services:
-        - name: unraid
+        - name: gitlab-cluster
           port: 5002
           scheme: http
   tls:
@@ -136,7 +160,7 @@ spec:
     - match: HostRegexp(`{subdomain:[a-z0-9-]+}.pages.durp.info`) || Host(`pages.durp.info`)
       kind: Rule
       services:
-        - name: unraid
+        - name: gitlab-cluster
           port: 9443
           scheme: https
   tls:
