@@ -78,7 +78,9 @@ spec:
   entryPoints:
     - durpdeploy
   routes:
-    - match: HostSNI(`*`)
+    - match: HostSNI(`durpdeploy.durp.info`)
       services:
         - name: durpdeploy-tcp
           port: 10943
+  tls:
+    passthrough: true
