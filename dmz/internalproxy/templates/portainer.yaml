@@ -12,8 +12,8 @@ spec:
         namespace: traefik
     kind: Rule
     services:
-      - name: infra-cluster
-        port: 443
+      - name: unraid
+        port: 9000
   tls:
     secretName: portainer-tls
 

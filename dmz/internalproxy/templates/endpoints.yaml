@@ -125,6 +125,9 @@ spec:
     - name: durpdeploy
       port: 9090
       protocol: TCP
+    - name: portainer
+      port: 9000
+      protocol: TCP
 
 ---
 apiVersion: v1
@@ -194,6 +197,9 @@ subsets:
         protocol: TCP
       - name: durpdeploy
         port: 9090
+        protocol: TCP
+      - name: portainer
+        port: 9000
         protocol: TCP
 
 ---
