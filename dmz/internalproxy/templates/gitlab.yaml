@@ -151,36 +151,37 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`images.durp.info`)
+    - match: Host(`registry.durp.info`)
       kind: Rule
       services:
         - name: gitlab-cluster
-          port: 5002
-          scheme: http
+          port: 443
+          scheme: https
+          serversTransport: gitlab-backend-tls
   tls:
-    secretName: gitlab-images-tls
+    secretName: gitlab-registry-tls
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: gitlab-images-tls
+  name: gitlab-registry-tls
 spec:
-  secretName: gitlab-images-tls
+  secretName: gitlab-registry-tls
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "images.durp.info"
+  commonName: "registry.durp.info"
   dnsNames:
-    - "images.durp.info"
+    - "registry.durp.info"
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: gitlab-images-external-dns
+  name: gitlab-registry-external-dns
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: images.durp.info
+    external-dns.alpha.kubernetes.io/hostname: registry.durp.info
 spec:
   type: ExternalName
   externalName: durp.info
@@ -198,8 +199,9 @@ spec:
       kind: Rule
       services:
         - name: gitlab-cluster
-          port: 9443
+          port: 443
           scheme: https
+          serversTransport: gitlab-backend-tls
   tls:
     secretName: pages-gitlab-tls
 
