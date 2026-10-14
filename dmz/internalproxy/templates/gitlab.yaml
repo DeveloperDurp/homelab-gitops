@@ -1,30 +1,30 @@
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: gitlab-ssh
-#spec:
-#  ports:
-#    - name: app
-#      port: 9022
-#      protocol: TCP
-#      targetPort: 9022
-#  clusterIP: None
-#  type: ClusterIP
-#
-#---
-#apiVersion: v1
-#kind: Endpoints
-#metadata:
-#  name: gitlab-ssh
-#subsets:
-#  - addresses:
-#      - ip: 192.168.21.200
-#    ports:
-#      - name: app
-#        port: 9022
-#        protocol: TCP
-#
-#---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-ssh
+spec:
+  ports:
+    - name: app
+      port: 9022
+      protocol: TCP
+      targetPort: 9022
+  clusterIP: None
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gitlab-ssh
+subsets:
+  - addresses:
+      - ip: 192.168.12.80
+    ports:
+      - name: app
+        port: 9022
+        protocol: TCP
+
+---
 apiVersion: v1
 kind: Endpoints
 metadata:
@@ -38,7 +38,7 @@ subsets:
         protocol: TCP
       - name: ssh
         port: 9022
-        protocol: TCP        
+        protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -50,10 +50,6 @@ spec:
       protocol: TCP
       port: 443
       targetPort: 443
-    - name: gitlab-ssh
-      port: 9022
-      protocol: TCP
-      targetPort: 9022
       
 ---
 apiVersion: traefik.io/v1alpha1
@@ -66,7 +62,7 @@ spec:
   routes:
     - match: HostSNI(`*`)
       services:
-        - name: gitlab-cluster
+        - name: gitlab-ssh
           port: 9022
 
 ---
