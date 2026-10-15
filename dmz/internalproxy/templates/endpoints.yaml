@@ -112,9 +112,9 @@ spec:
       protocol: TCP
       targetPort: 8201
     - name: s3
-      port: 9768
+      port: 3900
       protocol: TCP
-      targetPort: 9768
+      targetPort: 3900
     - name: smokeping
       port: 81
       protocol: TCP
@@ -184,7 +184,7 @@ subsets:
         port: 8201
         protocol: TCP
       - name: s3
-        port: 9768
+        port: 3900
         protocol: TCP
       - name: smokeping
         port: 81
