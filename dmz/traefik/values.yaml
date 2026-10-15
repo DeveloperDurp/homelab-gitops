@@ -29,6 +29,12 @@ traefik:
       expose:
         default: true
       exposedPort: 9022
+    durpdeploy:
+      port: 10943
+      exposedPort: 10943
+      protocol: TCP
+      expose:
+        default: true
     websecure:
       proxyProtocol:
         # racknerd VPS haproxy satnats ingress to 10.99.0.1 (wireguard tunnel)

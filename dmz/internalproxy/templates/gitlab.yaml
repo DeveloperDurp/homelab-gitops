@@ -1,30 +1,57 @@
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: gitlab-ssh
-#spec:
-#  ports:
-#    - name: app
-#      port: 9022
-#      protocol: TCP
-#      targetPort: 9022
-#  clusterIP: None
-#  type: ClusterIP
-#
-#---
-#apiVersion: v1
-#kind: Endpoints
-#metadata:
-#  name: gitlab-ssh
-#subsets:
-#  - addresses:
-#      - ip: 192.168.21.200
-#    ports:
-#      - name: app
-#        port: 9022
-#        protocol: TCP
-#
-#---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-ssh
+spec:
+  ports:
+    - name: app
+      port: 9022
+      protocol: TCP
+      targetPort: 9022
+  clusterIP: None
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gitlab-ssh
+subsets:
+  - addresses:
+      - ip: 192.168.12.80
+    ports:
+      - name: app
+        port: 9022
+        protocol: TCP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gitlab-cluster
+subsets:
+  - addresses:
+      - ip: 192.168.12.80
+    ports:
+      - name: https
+        port: 443
+        protocol: TCP
+      - name: ssh
+        port: 9022
+        protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-cluster
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
@@ -35,7 +62,7 @@ spec:
   routes:
     - match: HostSNI(`*`)
       services:
-        - name: unraid
+        - name: gitlab-ssh
           port: 9022
 
 ---
@@ -50,12 +77,42 @@ spec:
     - match: Host(`gitlab.durp.info`) && PathPrefix(`/`)
       kind: Rule
       services:
+        - name: gitlab-cluster
+          port: 443
+          scheme: https
+          serversTransport: gitlab-backend-tls
+  tls:
+    secretName: gitlab-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab-ingress-old
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gitlab-old.durp.info`) && PathPrefix(`/`)
+      kind: Rule
+      services:
         - name: unraid
           port: 9443
           scheme: https
   tls:
-    secretName: gitlab-tls
-
+    secretName: gitlab-old-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gitlab-old-tls
+spec:
+  secretName: gitlab-old-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "gitlab-old.durp.info"
+  dnsNames:
+    - "gitlab-old.durp.info"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -90,36 +147,37 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`images.durp.info`)
+    - match: Host(`registry.durp.info`)
       kind: Rule
       services:
-        - name: unraid
-          port: 5002
-          scheme: http
+        - name: gitlab-cluster
+          port: 443
+          scheme: https
+          serversTransport: gitlab-backend-tls
   tls:
-    secretName: gitlab-images-tls
+    secretName: gitlab-registry-tls
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: gitlab-images-tls
+  name: gitlab-registry-tls
 spec:
-  secretName: gitlab-images-tls
+  secretName: gitlab-registry-tls
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "images.durp.info"
+  commonName: "registry.durp.info"
   dnsNames:
-    - "images.durp.info"
+    - "registry.durp.info"
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: gitlab-images-external-dns
+  name: gitlab-registry-external-dns
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: images.durp.info
+    external-dns.alpha.kubernetes.io/hostname: registry.durp.info
 spec:
   type: ExternalName
   externalName: durp.info
@@ -136,9 +194,10 @@ spec:
     - match: HostRegexp(`{subdomain:[a-z0-9-]+}.pages.durp.info`) || Host(`pages.durp.info`)
       kind: Rule
       services:
-        - name: unraid
-          port: 9443
+        - name: gitlab-cluster
+          port: 443
           scheme: https
+          serversTransport: gitlab-backend-tls
   tls:
     secretName: pages-gitlab-tls
 
@@ -167,3 +226,11 @@ metadata:
 spec:
   type: ExternalName
   externalName: durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: gitlab-backend-tls
+spec:
+  serverName: gitlab.durp.info
