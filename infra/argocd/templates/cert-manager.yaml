@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/DeveloperDurp/homelab-gitops.git
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
     path: infra/cert-manager
   destination:
@@ -29,7 +29,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/DeveloperDurp/homelab-gitops.git
+    repoURL: https://gitlab.durp.info/durfy/homelab/gitops.git
     targetRevision: main
     path: dmz/cert-manager
   destination:
