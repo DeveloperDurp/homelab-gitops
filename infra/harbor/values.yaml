@@ -1,4 +1,8 @@
 harbor:
+  # Release the jobservice RWO disk before replacement; also applies to registry.
+  updateStrategy:
+    type: Recreate
+
   expose:
     type: ingress
     tls:
