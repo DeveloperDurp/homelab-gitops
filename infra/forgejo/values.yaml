@@ -92,6 +92,9 @@ forgejo:
       repository:
         ROOT: /data/forgejo-postgres/git/repositories
 
+      migrations:
+        ALLOWED_DOMAINS: "gitlab.durp.info"
+
       database:
         DB_TYPE: postgres
         HOST: "forgejo-db-rw.forgejo.svc.cluster.local:5432"
