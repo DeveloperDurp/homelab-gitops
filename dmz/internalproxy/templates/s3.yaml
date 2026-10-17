@@ -15,6 +15,7 @@ spec:
         - name: unraid
           port: 3900
           scheme: http
+          passHostHeader: true
   tls:
     secretName: s3-tls
 
@@ -49,6 +50,7 @@ spec:
         - name: unraid
           port: 3900
           scheme: http
+          passHostHeader: true
   tls:
     secretName: s3-external-tls
 

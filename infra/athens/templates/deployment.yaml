@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: athens
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: athens
+  template:
+    metadata:
+      labels:
+        app: athens
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: athens
+          image: {{ .Values.image | quote }}
+          ports:
+            - name: http
+              containerPort: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: GO_ENV
+              value: production
+            - name: ATHENS_LOG_LEVEL
+              value: info
+            - name: ATHENS_STORAGE_TYPE
+              value: s3
+            - name: ATHENS_S3_BUCKET_NAME
+              value: {{ .Values.s3.bucket | quote }}
+            - name: AWS_FORCE_PATH_STYLE
+              value: "true"
+            - name: AWS_USE_DEFAULT_CONFIGURATION
+              value: "false"
+            - name: AWS_EC2_METADATA_DISABLED
+              value: "true"
+            - name: AWS_REQUEST_CHECKSUM_CALCULATION
+              value: when_required
+            - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+              value: when_required
+            - name: AWS_ENDPOINT
+              valueFrom:
+                secretKeyRef: {name: athens-s3, key: endpoint}
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef: {name: athens-s3, key: region}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef: {name: athens-s3, key: access-key}
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef: {name: athens-s3, key: secret-key}
+            - name: ATHENS_GO_BINARY_ENV_VARS
+              value: "GOPROXY=https://proxy.golang.org;GOSUMDB=sum.golang.org"
+            - name: ATHENS_GOGET_WORKERS
+              value: "2"
+            - name: ATHENS_GOGET_DIR
+              value: /tmp
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            initialDelaySeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: temporary
+              mountPath: /tmp
+      volumes:
+        - name: temporary
+          emptyDir:
+            sizeLimit: 8Gi

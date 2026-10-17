@@ -1,0 +1,26 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: athens
+spec:
+  entryPoints: [websecure]
+  routes:
+    - match: Host(`{{ .Values.hostname }}`)
+      kind: Rule
+      services:
+        - name: athens
+          port: 3000
+  tls:
+    secretName: athens-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: athens-tls
+spec:
+  secretName: athens-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - {{ .Values.hostname | quote }}

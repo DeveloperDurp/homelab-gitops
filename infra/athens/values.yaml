@@ -1,0 +1,14 @@
+image: harbor.durp.info/dockerhub/gomods/athens:v0.19.2
+hostname: go.durp.info
+s3:
+  bucket: go-modules
+  # These properties must match the Garage instance, including its signing region.
+  vaultKey: kv/athens
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+    ephemeral-storage: 1Gi
+  limits:
+    memory: 1Gi
+    ephemeral-storage: 10Gi
