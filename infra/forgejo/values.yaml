@@ -93,7 +93,7 @@ forgejo:
         ROOT: /data/forgejo-postgres/git/repositories
 
       migrations:
-        ALLOWED_DOMAINS: "gitlab.durp.info"
+        ALLOWED_DOMAINS: "github.com,gitlab.durp.info"
 
       database:
         DB_TYPE: postgres
