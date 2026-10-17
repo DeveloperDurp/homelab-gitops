@@ -11,6 +11,15 @@ gitlab-runner:
   concurrent: 10
   checkInterval: 30
 
+  # Runner manager; job pods have their own scheduling settings in TOML below.
+  nodeSelector:
+    workload: gitlab-runner
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: gitlab-runner
+      effect: NoSchedule
+
   rbac:
     create: true
     rules: []
@@ -53,6 +62,12 @@ gitlab-runner:
           service_cpu_limit = "2"
           service_memory_request = "512Mi"
           service_memory_limit = "2Gi"
+
+          [runners.kubernetes.node_selector]
+            workload = "gitlab-runner"
+
+          [runners.kubernetes.node_tolerations]
+            "dedicated=gitlab-runner" = "NoSchedule"
 
           [runners.kubernetes.pod_labels]
             "ci.durp.info/workload" = "gitlab-job"
