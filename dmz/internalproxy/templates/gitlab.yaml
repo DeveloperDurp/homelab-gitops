@@ -153,7 +153,7 @@ spec:
         - name: gitlab-cluster
           port: 443
           scheme: https
-          serversTransport: gitlab-backend-tls
+          serversTransport: gitlab-registry-backend-tls
   tls:
     secretName: gitlab-registry-tls
 
@@ -234,3 +234,11 @@ metadata:
   name: gitlab-backend-tls
 spec:
   serverName: gitlab.durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: gitlab-registry-backend-tls
+spec:
+  serverName: registry.durp.info
