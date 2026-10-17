@@ -35,21 +35,41 @@ gitlab-runner:
           namespace = "{{.Release.Namespace}}"
           image = "ubuntu:22.04"
           privileged = true
+          # Job resources belong in TOML; the chart ignores runners.builds.
+          cpu_request = "500m"
+          cpu_limit = "2"
+          cpu_request_overwrite_max_allowed = "2"
+          cpu_limit_overwrite_max_allowed = "4"
+          memory_request = "1Gi"
+          memory_limit = "4Gi"
+          memory_request_overwrite_max_allowed = "2Gi"
+          memory_limit_overwrite_max_allowed = "6Gi"
+          helper_cpu_request = "100m"
+          helper_cpu_limit = "500m"
+          helper_memory_request = "128Mi"
+          helper_memory_limit = "512Mi"
+          # Per service container, including Docker-in-Docker when requested.
+          service_cpu_request = "500m"
+          service_cpu_limit = "2"
+          service_memory_request = "512Mi"
+          service_memory_limit = "2Gi"
+
+          [runners.kubernetes.pod_labels]
+            "ci.durp.info/workload" = "gitlab-job"
+
+          # ponytail: prefer spreading, but allow sharing nodes if capacity is reduced.
+          [[runners.kubernetes.affinity.pod_anti_affinity.preferred_during_scheduling_ignored_during_execution]]
+            weight = 100
+            [runners.kubernetes.affinity.pod_anti_affinity.preferred_during_scheduling_ignored_during_execution.pod_affinity_term]
+              topology_key = "kubernetes.io/hostname"
+              [runners.kubernetes.affinity.pod_anti_affinity.preferred_during_scheduling_ignored_during_execution.pod_affinity_term.label_selector.match_labels]
+                "ci.durp.info/workload" = "gitlab-job"
 
     executor: kubernetes
     name: "k3s"
     runUntagged: true
     privileged: true
     secret: gitlab-secret
-    builds:
-      cpuLimit: 2
-      cpuLimitOverwriteMaxAllowed: 4
-      memoryLimit: 4Gi
-      memoryLimitOverwriteMaxAllowed: 6Gi
-      cpuRequests: 500m
-      cpuRequestsOverwriteMaxAllowed: 2
-      memoryRequests: 1Gi
-      memoryRequestsOverwriteMaxAllowed: 2Gi
 
   securityContext:
     allowPrivilegeEscalation: false
