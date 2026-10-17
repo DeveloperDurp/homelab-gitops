@@ -191,13 +191,14 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: HostRegexp(`{subdomain:[a-z0-9-]+}.pages.durp.info`) || Host(`pages.durp.info`)
+    - match: HostRegexp(`^[a-z0-9-]+\.pages\.durp\.info$`) || Host(`pages.durp.info`)
       kind: Rule
       services:
         - name: gitlab-cluster
           port: 443
           scheme: https
-          serversTransport: gitlab-backend-tls
+          passHostHeader: true
+          serversTransport: gitlab-pages-backend-tls
   tls:
     secretName: pages-gitlab-tls
 
@@ -242,3 +243,13 @@ metadata:
   name: gitlab-registry-backend-tls
 spec:
   serverName: registry.durp.info
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: gitlab-pages-backend-tls
+spec:
+  # Matches the gateway's *.pages.durp.info TLS listener and certificate.
+  # This SNI name does not need DNS; requests retain their original Pages Host.
+  serverName: pages-backend.pages.durp.info
