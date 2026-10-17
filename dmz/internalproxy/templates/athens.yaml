@@ -25,6 +25,8 @@ metadata:
   name: athens-backend-tls
 spec:
   serverName: go.durp.info
+  rootCAsSecrets:
+    - durp-internal-ca
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

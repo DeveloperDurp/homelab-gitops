@@ -3,8 +3,13 @@
 Argo CD deploys this chart to the infra cluster's `athens` namespace. DMZ
 terminates public TLS for `go.durp.info`, preserves the Host header, and forwards
 HTTPS to the existing `infra-cluster` endpoint. Infra Traefik terminates TLS with
-a Let's Encrypt certificate and forwards HTTP to Athens on port 3000. The named
-DMZ transport sends SNI `go.durp.info` and verifies the backend certificate.
+an internal certificate from `vault-issuer` and forwards HTTP to Athens on port
+3000. The named DMZ transport sends SNI `go.durp.info` and verifies the backend
+certificate using the shared `durp-internal-ca` Secret. This contains only the public
+`durp.info` root certificate, sourced from the existing DMZ External Secrets CA
+bundle and stored in `dmz/internalproxy/files/durp-root-ca.pem`. Rotate that file
+when the internal root changes. Only DMZ uses Let's Encrypt for this service.
+Other routes can reuse the same CA; see `dmz/internalproxy/README.md`.
 The DMZ route uses the existing `traefik/whitelist` middleware, so clients must
 reach it from the allowed private networks (including CI runners or VPN).
 

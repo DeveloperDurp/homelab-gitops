@@ -1,0 +1,8 @@
+# Shared public trust anchor from dmz/external-secrets/templates/ca.yaml.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: durp-internal-ca
+type: Opaque
+data:
+  ca.crt: {{ .Files.Get "files/durp-root-ca.pem" | b64enc | quote }}

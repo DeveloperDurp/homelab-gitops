@@ -24,6 +24,8 @@ spec:
             capabilities:
               drop: [ALL]
           env:
+            - name: ATHENS_PORT
+              value: ":3000"
             - name: GO_ENV
               value: production
             - name: ATHENS_LOG_LEVEL

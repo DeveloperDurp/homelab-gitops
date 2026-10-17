@@ -20,7 +20,7 @@ metadata:
 spec:
   secretName: athens-tls
   issuerRef:
-    name: letsencrypt-production
+    name: vault-issuer
     kind: ClusterIssuer
   dnsNames:
     - {{ .Values.hostname | quote }}
