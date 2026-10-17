@@ -7,12 +7,21 @@ import yaml
 
 values = yaml.safe_load(Path(__file__).with_name("values.yaml").read_text())["gitlab-runner"]
 config = values["runners"]["config"]
+docs = []
 if len(sys.argv) > 1:
     docs = list(yaml.safe_load_all(Path(sys.argv[1]).read_text()))
     config = next(d["data"]["config.template.toml"] for d in docs
                   if d and d.get("kind") == "ConfigMap"
                   and "config.template.toml" in d.get("data", {}))
 kube = tomllib.loads(config)["runners"][0]["kubernetes"]
+assert kube["helper_image"] == (
+    "harbor.durp.info/gitlab/gitlab-org/gitlab-runner/"
+    "gitlab-runner-helper:x86_64-v18.0.5"
+)
+if len(sys.argv) > 1:
+    manager = next(d for d in docs if d and d.get("kind") == "Deployment")
+    image = manager["spec"]["template"]["spec"]["containers"][0]["image"]
+    assert image.rsplit(":", 1)[1].removeprefix("alpine-") == "v18.0.5", image
 assert values["concurrent"] == 10
 assert "builds" not in values["runners"]
 for prefix, cpu, memory in [("", "500m", "1Gi"), ("helper_", "100m", "128Mi"),

@@ -43,6 +43,8 @@ gitlab-runner:
         [runners.kubernetes]
           namespace = "{{.Release.Namespace}}"
           image = "ubuntu:22.04"
+          # Match Runner 18.0.5 (chart 0.77.5); pull through the existing GitLab proxy cache.
+          helper_image = "harbor.durp.info/gitlab/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.0.5"
           privileged = true
           # Job resources belong in TOML; the chart ignores runners.builds.
           cpu_request = "500m"
