@@ -9,6 +9,8 @@ spec:
     - match: Host(`searxng.durp.info`) && PathPrefix(`/`)
       kind: Rule
       middlewares:
+        - name: internet-access
+          namespace: traefik
         - name: authentik-proxy-provider
           namespace: traefik
       services:

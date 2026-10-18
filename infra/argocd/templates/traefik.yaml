@@ -25,6 +25,8 @@ kind: Application
 metadata:
   name: traefik-dmz
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
 spec:
   project: default
   source:

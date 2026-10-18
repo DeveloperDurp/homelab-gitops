@@ -1,0 +1,36 @@
+# Default every HTTP route to private unless it explicitly selects an access chain.
+# JSON Patch preserves the route, its services, and all existing app middleware.
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: dmz-ingress-default-internal
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [traefik.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [ingressroutes]
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >-
+          object.spec.routes.transformList(i, r,
+            !has(r.middlewares) || !r.middlewares.exists(m,
+              m.name in ['internal-only', 'internet-access'] &&
+              has(m.namespace) && m.namespace == 'traefik'),
+            JSONPatch{
+              op: 'add',
+              path: '/spec/routes/' + string(i) + '/middlewares',
+              value: [{'name': 'internal-only', 'namespace': 'traefik'}] +
+                (has(r.middlewares) ? r.middlewares : [])
+            })
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: dmz-ingress-default-internal
+spec:
+  policyName: dmz-ingress-default-internal

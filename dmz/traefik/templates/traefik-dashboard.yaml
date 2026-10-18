@@ -9,8 +9,6 @@ spec:
     - match: Host(`traefik.dmz.durp.info`)
       kind: Rule
       middlewares:
-        - name: whitelist
-          namespace: traefik
         - name: authentik-proxy-provider
           namespace: traefik
       services:

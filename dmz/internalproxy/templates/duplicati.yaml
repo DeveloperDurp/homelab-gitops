@@ -8,10 +8,8 @@ spec:
   routes:
   - match: Host(`duplicati.internal.durp.info`) && PathPrefix(`/`)
     middlewares:
-    - name: whitelist
-      namespace: traefik
-    - name: authentik-proxy-provider
-      namespace: traefik  
+      - name: authentik-proxy-provider
+        namespace: traefik
     kind: Rule
     services:
     - name: unraid

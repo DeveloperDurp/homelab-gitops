@@ -7,9 +7,6 @@ spec:
   routes:
     - match: Host(`go.durp.info`)
       kind: Rule
-      middlewares:
-        - name: whitelist
-          namespace: traefik
       services:
         - name: infra-cluster
           port: 443

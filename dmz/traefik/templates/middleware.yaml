@@ -27,11 +27,43 @@ metadata:
   name: whitelist
   namespace: traefik
 spec:
-  ipWhiteList:
+  ipAllowList:
+    # Client LAN/VLAN addresses only; never trust pod CIDRs or the proxy transit IP.
     sourceRange:
       - 192.168.0.0/16
-      - 172.16.0.0/12
-      - 10.0.0.0/8
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: baseline-headers
+  namespace: traefik
+spec:
+  headers:
+    contentTypeNosniff: true
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-only
+  namespace: traefik
+spec:
+  chain:
+    middlewares:
+      - name: whitelist
+      - name: baseline-headers
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: internet-access
+  namespace: traefik
+spec:
+  chain:
+    middlewares:
+      - name: baseline-headers
 
 ---
 #apiVersion: traefik.io/v1alpha1

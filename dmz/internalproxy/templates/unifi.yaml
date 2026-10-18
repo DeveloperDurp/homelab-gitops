@@ -36,9 +36,6 @@ spec:
     - websecure
   routes:
     - match: Host(`unifi.internal.durp.info`) && PathPrefix(`/`)
-      middlewares:
-        - name: whitelist
-          namespace: traefik
       kind: Rule
       services:
         - name: unifi

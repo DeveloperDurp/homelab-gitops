@@ -7,9 +7,6 @@ spec:
     - websecure
   routes:
     - match: Host(`unraid.internal.durp.info`) && PathPrefix(`/`)
-      middlewares:
-        - name: whitelist
-          namespace: traefik
       kind: Rule
       services:
         - name: unraid

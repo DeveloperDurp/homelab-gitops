@@ -75,6 +75,9 @@ spec:
     - websecure
   routes:
     - match: Host(`gitlab.durp.info`) && PathPrefix(`/`)
+      middlewares:
+        - name: internet-access
+          namespace: traefik
       kind: Rule
       services:
         - name: gitlab-cluster
@@ -148,6 +151,9 @@ spec:
     - websecure
   routes:
     - match: Host(`registry.durp.info`)
+      middlewares:
+        - name: internet-access
+          namespace: traefik
       kind: Rule
       services:
         - name: gitlab-cluster
@@ -192,6 +198,9 @@ spec:
     - websecure
   routes:
     - match: HostRegexp(`^[a-z0-9-]+\.pages\.durp\.info$`) || Host(`pages.durp.info`)
+      middlewares:
+        - name: internet-access
+          namespace: traefik
       kind: Rule
       services:
         - name: gitlab-cluster

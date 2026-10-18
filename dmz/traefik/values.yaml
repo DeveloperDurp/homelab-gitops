@@ -5,6 +5,9 @@ traefik:
     pullPolicy: Always
 
   providers:
+    kubernetesIngress:
+      # All HTTP routes use IngressRoute with an enforced access-chain choice.
+      enabled: false
     kubernetesCRD:
       allowCrossNamespace: true
       allowExternalNameServices: true
@@ -19,9 +22,15 @@ traefik:
   #     mountPath: "/config"
   #     type: configMap
 
+  service:
+    spec:
+      # Preserve the HAProxy/WireGuard peer so PROXY v2 trust works before IP filtering.
+      externalTrafficPolicy: Local
+
   ingressRoute:
     dashboard:
-      enabled: true
+      # Keep only our explicitly protected dashboard route.
+      enabled: false
 
   ports:
     gitlab-ssh:

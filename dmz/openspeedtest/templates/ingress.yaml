@@ -9,9 +9,11 @@ spec:
   - match: Host(`speedtest.durp.info`) && PathPrefix(`/`)
     kind: Rule
     middlewares:
-    - name: authentik-proxy-provider
-      namespace: traefik  
-    - name: limit-buffering
+      - name: internet-access
+        namespace: traefik
+      - name: authentik-proxy-provider
+        namespace: traefik
+      - name: limit-buffering
     services:
     - name: openspeedtest
       port: 3000

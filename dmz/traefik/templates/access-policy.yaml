@@ -1,0 +1,30 @@
+# Mutating admission supplies internal-only when absent; validation is the safety net.
+# Standard Ingress discovery is disabled in values.yaml; TCP routes are unchanged.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: dmz-ingress-access-chain
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [traefik.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [ingressroutes]
+  validations:
+    - expression: >-
+        object.spec.routes.all(r,
+          has(r.middlewares) && size(r.middlewares) > 0 &&
+          r.middlewares[0].name in ['internal-only', 'internet-access'] &&
+          has(r.middlewares[0].namespace) &&
+          r.middlewares[0].namespace == 'traefik')
+      message: "Every HTTP route must start with traefik/internal-only (default) or an explicit traefik/internet-access exception."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: dmz-ingress-access-chain
+spec:
+  policyName: dmz-ingress-access-chain
+  validationActions: [Deny]

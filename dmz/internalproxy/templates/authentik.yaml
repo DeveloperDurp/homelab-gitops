@@ -21,6 +21,9 @@ spec:
     - websecure
   routes:
     - match: Host(`authentik.durp.info`) && PathPrefix(`/`)
+      middlewares:
+        - name: internet-access
+          namespace: traefik
       kind: Rule
       services:
         - name: infra-talos-cluster
