@@ -216,6 +216,24 @@ assert longhorn_cert["secretName"] == longhorn_route["tls"]["secretName"]
 assert longhorn_cert["issuerRef"] == {"name": "vault-issuer", "kind": "ClusterIssuer"}
 assert longhorn_cert["dnsNames"] == ["longhorn.infra.durp.info"]
 print("PASS: infra Longhorn backend ingress and TLS; no redundant backend middleware")
+garage_docs = list(documents([DMZ / "internalproxy/templates/garage.yaml"]))
+garage_route = next(d for d in garage_docs if d["kind"] == "IngressRoute")["spec"]
+garage_rule = garage_route["routes"][0]
+assert garage_rule["match"] == "Host(`garage.internal.durp.info`) && PathPrefix(`/`)"
+assert garage_rule["middlewares"] == [{"name": "authentik-proxy-provider", "namespace": "traefik"}]
+assert garage_rule["services"] == [{"name": "unraid", "port": 3909, "scheme": "http"}]
+garage_cert = next(d for d in garage_docs if d["kind"] == "Certificate")["spec"]
+assert garage_cert["secretName"] == garage_route["tls"]["secretName"]
+assert garage_cert["dnsNames"] == ["garage.internal.durp.info"]
+for kind in ["Service", "Endpoints"]:
+    unraid = next(d for d in source_docs if d.get("kind") == kind and d["metadata"]["name"] == "unraid")
+    ports = unraid["spec"]["ports"] if kind == "Service" else unraid["subsets"][0]["ports"]
+    assert len({p["name"] for p in ports}) == len(ports)
+    port = next(p for p in ports if p["name"] == "garage-ui")
+    assert port["port"] == 3909
+    if kind == "Service":
+        assert port["targetPort"] == 3909
+print("PASS: Garage UI uses Authentik, implicit private access, TLS and matching Unraid ports")
 print("PASS: source-IP guardrails, fail-closed policy, preserved authentication and TCP/backends")
 if args.rendered_directory:
     rendered = list(documents(sorted(args.rendered_directory.glob("*.yaml"))))

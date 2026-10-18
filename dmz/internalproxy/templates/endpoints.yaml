@@ -115,6 +115,10 @@ spec:
       port: 3900
       protocol: TCP
       targetPort: 3900
+    - name: garage-ui
+      port: 3909
+      protocol: TCP
+      targetPort: 3909
     - name: smokeping
       port: 81
       protocol: TCP
@@ -188,6 +192,9 @@ subsets:
         protocol: TCP
       - name: s3
         port: 3900
+        protocol: TCP
+      - name: garage-ui
+        port: 3909
         protocol: TCP
       - name: smokeping
         port: 81

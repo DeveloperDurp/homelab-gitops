@@ -25,7 +25,9 @@ is an explicit exception covered by its `*.pages.durp.info` annotation.
 
 Routes without a matching annotation are internal-only, including
 `searxng.internal`, `gitlab-old`, `freshrss`, ArgoCD, Longhorn, and management UIs.
-There are 17 explicit public exceptions and 17 implicitly internal route rules in
+`garage.internal.durp.info` is private by default and additionally requires
+Authentik before proxying to Unraid's HTTP UI on port 3909; it is not the S3 API.
+There are 17 explicit public exceptions and 18 implicitly internal route rules in
 the current sources. No route template redundantly lists `internal-only`.
 
 This is explicit configuration, not a runtime DNS-based authorization decision.
