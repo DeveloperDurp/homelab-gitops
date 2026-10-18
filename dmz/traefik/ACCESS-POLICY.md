@@ -6,12 +6,15 @@ prepends `internal-only`, preserving any other application middleware. Explicit
 `internet-access`, `internal-only`, or the scoped `internal-go-proxy` choice is left unchanged:
 
 - `internal-only`: the default choice. Allows `192.168.0.0/16` LAN/VLAN clients
-  through the shared `whitelist` IPAllowList, then adds `nosniff`.
-- `internal-go-proxy`: private exception only for `internalproxy/athens` with
-  exact rule Host(`go.durp.info`). Allows the same LAN clients plus runner-node
-  pod CIDRs `10.244.7.0/24`, `10.244.8.0/24`, and `10.244.5.0/24`, then adds
-  `nosniff`. Admission denies using this chain on other route names, namespaces,
-  or host rules. It is explicitly selected because it is not the ordinary default.
+  and dedicated runner-node pod CIDRs `10.244.7.0/24`, `10.244.8.0/24`, and
+  `10.244.5.0/24` through the shared `whitelist`, then adds `nosniff`.
+  CI jobs can reach all private DMZ HTTP routes, including management UIs;
+  Authentik and application authentication are not bypassed.
+- `internal-go-proxy`: legacy compatibility chain for the old live Athens route
+  during independent Application syncs. No source route selects it anymore:
+  Athens omits access middleware and receives the default `internal-only`.
+  The legacy chain allows exactly the same clients; admission still scopes it
+  to `internalproxy/athens` with exact rule Host(`go.durp.info`).
 - `internet-access`: explicit public exception. Adds `nosniff` without an IP
   restriction. It is NOT authentication, a WAF, or a rate limiter.
 
@@ -32,8 +35,8 @@ Routes without a matching annotation are internal-only, including
 `searxng.internal`, `gitlab-old`, `freshrss`, ArgoCD, Longhorn, and management UIs.
 `garage.internal.durp.info` is private by default and additionally requires
 Authentik before proxying to Unraid's HTTP UI on port 3909; it is not the S3 API.
-There are 17 explicit public rules, 17 default-private rules, and one Go-proxy-only
-private exception in the current sources. No route redundantly lists `internal-only`.
+There are 17 explicit public rules and 18 default-private rules in the current
+sources. No route redundantly lists `internal-only` or selects the legacy Go chain.
 
 This is explicit configuration, not a runtime DNS-based authorization decision.
 When adding/removing an ExternalDNS Service annotation, review its corresponding
@@ -67,17 +70,22 @@ is deployed. Defaults do not retroactively mutate old objects; sync and inspect
 all existing routes during rollout. Authorized route maintainers choose explicit
 public exceptions; the policies do not query DNS or prevent administrator edits.
 
-Source manifests list public exceptions (`internet-access`), the one scoped Go
-exception (`internal-go-proxy`), and app-specific middleware. Ordinary internal
-routes omit the access chain and rely on admission defaulting.
+Source manifests list public exceptions (`internet-access`) and app-specific
+middleware. All internal routes, including Athens, omit the access chain and
+rely on admission defaulting.
 
-For the Go runner repair, sync `traefik-dmz` (both policies and new middleware)
-before `internal-proxy` (Athens). The Applications are independent. An early
-Athens sync can be denied or retain the ordinary private guard until the new
-policies are active; do not bypass admission. Then verify a real runner module
-fetch succeeds and public-VPS Go requests remain 403, including spoofed headers.
-These are node pod-subnet allowances, not pod-identity authorization. Review the
-three CIDRs after runner-node replacement; never add all of `10.0.0.0/8` globally.
+For global runner access, sync `traefik-dmz` to update the shared allowlist.
+Existing routes using `internal-only` inherit the change. Then sync
+`internal-proxy` so Athens also receives the default `internal-only` chain;
+backend TLS remains unchanged. Keep the legacy Go middleware compatible until
+that independently synced route has migrated. No admission-policy change is
+needed. Verify
+real runner access to representative private routes and a Go module download;
+public-VPS requests must remain 403, including spoofed forwarding headers.
+These are node pod-subnet allowances, not pod-identity authorization: any pod on
+those dedicated nodes has this ingress access. Review the three CIDRs after node
+replacement; never add all of `10.0.0.0/8` globally. The exception does not change
+firewalls, direct cluster access, raw TCP routing, DNS or authentication.
 The active `internal-proxy`, `searxng`, and `traefik-dmz` Applications enable
 `ServerSideDiff=true,IncludeMutationWebhook=true` so predicted state includes the
 default rather than repeatedly reporting it as drift. Middleware differences are
@@ -97,9 +105,11 @@ kube-proxy source NAT. HAProxy must continue sending PROXY v2 from its trusted
 WireGuard peer `10.99.0.1/32`. The trust range is not widened.
 
 Do not add `10.244.0.0/16`, the proxy transit address, or broad private ranges back
-to the allowlist to work around an incorrectly preserved source address. Pod
-callers to an internal route may now need a deliberate service-to-service path;
-being inside Kubernetes no longer grants access through this middleware.
+to the allowlist to work around an incorrectly preserved source address. Only
+the three explicitly trusted runner-node pod subnets are allowed; other pod
+callers need a deliberate service-to-service path. Being inside Kubernetes alone
+does not grant access. Runner DNS must resolve private routes to the LAN ingress;
+hairpinning through the public VPS does not make its public source IP trusted.
 
 ## Validation
 
@@ -112,7 +122,7 @@ python3 dmz/traefik/check_access.py /path/to/rendered-directory
 The check verifies policy classification, original authentication, unchanged
 backends/TCP rules, IP ranges, admission guards, and rendered provider/Service
 settings when supplied. To exercise the exact mutation and validation CEL with
-nine synthetic fixtures plus every actual route manifest (defaults, auth
+synthetic fixtures plus every actual route manifest (defaults, auth
 preservation, exceptions, namespace spoofing, invalid ordering, duplicate rules,
 mixed rules, and repeat admission), build the
 small Go runner in a scratch module, not in this repository:
@@ -133,7 +143,8 @@ The fixture runner models JSONPatch constructors for middleware arrays and
 uses CEL's two-variable comprehensions. This is a local logic test, not proof
 of a deployed Kubernetes admission chain. The DMZ API serves native v1 mutation
 and validation policies; verify actual server-side dry-run behavior after sync.
-The repository has no root GitLab CI file wiring these checks into a pipeline.
+The root GitLab CI job runs the source checks; the compiled CEL runner is an
+additional local check.
 
 ## Rollout and acceptance checks
 
@@ -164,8 +175,9 @@ This is a GitOps proposal only. Keep a direct internal recovery path available.
 5. From an outside network, force the public VPS IP with the real internal Host
    and SNI. ArgoCD/Proxmox/internal SearXNG must be 403; spoofed forwarded headers
    must not change that. Logs must no longer accept a masqueraded pod-gateway IP.
-6. From an authorized LAN/VLAN client, verify those internal applications still
-   work. Check public GitLab clone/API, registry uploads, Pages, Authentik callbacks,
+6. From authorized LAN/VLAN clients and actual runner jobs, verify private
+   applications pass the IP boundary while retaining their normal authentication.
+   Check public GitLab clone/API, registry uploads, Pages, Authentik callbacks,
    Nextcloud, S3 and other required public applications with their normal auth.
 7. Test GitLab SSH 9022 and DurpDeploy agent TLS 10943 separately. Their TCP route
    definitions and end-to-end TLS are unchanged, but Service traffic policy also

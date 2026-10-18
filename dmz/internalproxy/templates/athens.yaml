@@ -7,9 +7,6 @@ spec:
   routes:
     - match: Host(`go.durp.info`)
       kind: Rule
-      middlewares:
-        - name: internal-go-proxy
-          namespace: traefik
       services:
         - name: infra-cluster
           port: 443

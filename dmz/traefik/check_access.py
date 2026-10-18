@@ -57,10 +57,6 @@ def check(docs):
             refs = route.get("middlewares", [])
             if public:
                 assert refs and refs[0] == {"name": "internet-access", "namespace": "traefik"}, d["metadata"]["name"]
-            elif d["metadata"]["name"] == "athens":
-                assert route["match"] == "Host(`go.durp.info`)"
-                assert refs == [{"name": "internal-go-proxy", "namespace": "traefik"}]
-                expected = "internal-go-proxy"
             else:
                 assert not any(m.get("namespace") == "traefik" and
                                m["name"] in ["internal-only", "internet-access", "internal-go-proxy"] for m in refs), d["metadata"]["name"]
@@ -88,8 +84,12 @@ mw = {d["metadata"]["name"]: d["spec"] for d in source_docs
       if d.get("kind") == "Middleware" and d["metadata"].get("namespace") == "traefik"}
 assert mw["internal-only"]["chain"]["middlewares"][0]["name"] == "whitelist"
 assert mw["internet-access"] == {"chain": {"middlewares": [{"name": "baseline-headers"}]}}
-ranges = [ipaddress.ip_network(c) for c in mw["whitelist"]["ipAllowList"]["sourceRange"]]
+ranges = {ipaddress.ip_network(c) for c in mw["whitelist"]["ipAllowList"]["sourceRange"]}
+assert ranges == {ipaddress.ip_network(c) for c in [
+    "192.168.0.0/16", "10.244.7.0/24", "10.244.8.0/24", "10.244.5.0/24",
+]}
 for address, allowed in [("192.168.30.5", True), ("192.168.12.50", True),
+                         ("10.244.7.12", True), ("10.244.8.41", True), ("10.244.5.12", True),
                          ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in ranges) == allowed
 assert mw["internal-go-proxy"] == {"chain": {"middlewares": [
@@ -103,7 +103,8 @@ for address, allowed in [("10.244.7.12", True), ("10.244.8.41", True),
                          ("10.244.5.12", True), ("192.168.30.5", True),
                          ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in go_ranges) == allowed
-print("PASS: Go-only runner ranges; global private allowlist unchanged")
+assert go_ranges == ranges  # Keep the deployed Athens chain compatible during independent app syncs.
+print("PASS: dedicated runner subnets allowed globally; unrelated pods and public clients denied")
 policy = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicy")
 assert policy["spec"]["failurePolicy"] == "Fail"
 binding = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicyBinding")
@@ -165,13 +166,10 @@ if args.admission_check:
         if doc.get("kind") != "IngressRoute":
             continue
         obj = copy.deepcopy(doc)
-        if doc["metadata"]["name"] == "athens":
-            # Namespace is supplied by the Helm/ArgoCD destination at the API.
-            obj["metadata"]["namespace"] = "internalproxy"
         expected = copy.deepcopy(obj)
         for route in expected["spec"]["routes"]:
             refs = route.get("middlewares", [])
-            if not (refs and refs[0] in [public, go_access]):
+            if not (refs and refs[0] == public):
                 route["middlewares"] = [private] + refs
         cases.append({"name": "manifest " + doc["metadata"]["name"],
                       "object": obj, "expected": expected, "allowed": True})
@@ -275,6 +273,10 @@ print("PASS: source-IP guardrails, fail-closed policy, preserved authentication 
 if args.rendered_directory:
     rendered = list(documents(sorted(args.rendered_directory.glob("*.yaml"))))
     check(rendered)
+    rendered_mw = {d["metadata"]["name"]: d["spec"] for d in rendered
+                   if d.get("kind") == "Middleware" and d["metadata"].get("namespace") == "traefik"}
+    assert rendered_mw["whitelist"] == mw["whitelist"]
+    assert rendered_mw["go-proxy-whitelist"] == mw["go-proxy-whitelist"]
     deployment = next(d for d in rendered if d.get("kind") == "Deployment"
                       and d["metadata"]["name"] == "traefik-dmz")
     args = deployment["spec"]["template"]["spec"]["containers"][0]["args"]
