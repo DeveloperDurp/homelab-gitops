@@ -16,10 +16,14 @@ spec:
     - expression: >-
         object.spec.routes.all(r,
           has(r.middlewares) && size(r.middlewares) > 0 &&
-          r.middlewares[0].name in ['internal-only', 'internet-access'] &&
           has(r.middlewares[0].namespace) &&
-          r.middlewares[0].namespace == 'traefik')
-      message: "Every HTTP route must start with traefik/internal-only (default) or an explicit traefik/internet-access exception."
+          r.middlewares[0].namespace == 'traefik' &&
+          (r.middlewares[0].name in ['internal-only', 'internet-access'] ||
+            (r.middlewares[0].name == 'internal-go-proxy' &&
+             object.metadata.name == 'athens' &&
+             object.metadata.namespace == 'internalproxy' &&
+             r.match == 'Host(`go.durp.info`)')))
+      message: "Every HTTP route must start with a trusted access chain; internal-go-proxy is restricted to internalproxy/athens on go.durp.info."
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding

@@ -3,10 +3,15 @@
 Every admitted HTTP `IngressRoute` starts with one shared middleware in namespace
 `traefik`. If no access chain is specified, native mutating admission automatically
 prepends `internal-only`, preserving any other application middleware. Explicit
-`internet-access` or `internal-only` choices are left unchanged:
+`internet-access`, `internal-only`, or the scoped `internal-go-proxy` choice is left unchanged:
 
 - `internal-only`: the default choice. Allows `192.168.0.0/16` LAN/VLAN clients
   through the shared `whitelist` IPAllowList, then adds `nosniff`.
+- `internal-go-proxy`: private exception only for `internalproxy/athens` with
+  exact rule Host(`go.durp.info`). Allows the same LAN clients plus runner-node
+  pod CIDRs `10.244.7.0/24`, `10.244.8.0/24`, and `10.244.5.0/24`, then adds
+  `nosniff`. Admission denies using this chain on other route names, namespaces,
+  or host rules. It is explicitly selected because it is not the ordinary default.
 - `internet-access`: explicit public exception. Adds `nosniff` without an IP
   restriction. It is NOT authentication, a WAF, or a rate limiter.
 
@@ -27,8 +32,8 @@ Routes without a matching annotation are internal-only, including
 `searxng.internal`, `gitlab-old`, `freshrss`, ArgoCD, Longhorn, and management UIs.
 `garage.internal.durp.info` is private by default and additionally requires
 Authentik before proxying to Unraid's HTTP UI on port 3909; it is not the S3 API.
-There are 17 explicit public exceptions and 18 implicitly internal route rules in
-the current sources. No route template redundantly lists `internal-only`.
+There are 17 explicit public rules, 17 default-private rules, and one Go-proxy-only
+private exception in the current sources. No route redundantly lists `internal-only`.
 
 This is explicit configuration, not a runtime DNS-based authorization decision.
 When adding/removing an ExternalDNS Service annotation, review its corresponding
@@ -50,7 +55,8 @@ Instead, the native Kubernetes MutatingAdmissionPolicy handles CREATE/UPDATE:
 
 - No access middleware, an empty list, or app-only middleware: prepend
   `traefik/internal-only` to each rule that needs it.
-- Explicit `traefik/internet-access` or `traefik/internal-only`: preserve the list.
+- Explicit `traefik/internet-access`, `traefik/internal-only`, or
+  `traefik/internal-go-proxy`: preserve the list; validation scopes the Go chain.
 - A same-named chain in another namespace is not a public exception.
 - Repeated admission is idempotent: it does not duplicate the default chain.
 
@@ -61,8 +67,17 @@ is deployed. Defaults do not retroactively mutate old objects; sync and inspect
 all existing routes during rollout. Authorized route maintainers choose explicit
 public exceptions; the policies do not query DNS or prevent administrator edits.
 
-Source manifests list only public exceptions (`internet-access`) and app-specific
-middleware. Internal routes omit the access chain and rely on admission defaulting.
+Source manifests list public exceptions (`internet-access`), the one scoped Go
+exception (`internal-go-proxy`), and app-specific middleware. Ordinary internal
+routes omit the access chain and rely on admission defaulting.
+
+For the Go runner repair, sync `traefik-dmz` (both policies and new middleware)
+before `internal-proxy` (Athens). The Applications are independent. An early
+Athens sync can be denied or retain the ordinary private guard until the new
+policies are active; do not bypass admission. Then verify a real runner module
+fetch succeeds and public-VPS Go requests remain 403, including spoofed headers.
+These are node pod-subnet allowances, not pod-identity authorization. Review the
+three CIDRs after runner-node replacement; never add all of `10.0.0.0/8` globally.
 The active `internal-proxy`, `searxng`, and `traefik-dmz` Applications enable
 `ServerSideDiff=true,IncludeMutationWebhook=true` so predicted state includes the
 default rather than repeatedly reporting it as drift. Middleware differences are

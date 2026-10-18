@@ -57,9 +57,13 @@ def check(docs):
             refs = route.get("middlewares", [])
             if public:
                 assert refs and refs[0] == {"name": "internet-access", "namespace": "traefik"}, d["metadata"]["name"]
+            elif d["metadata"]["name"] == "athens":
+                assert route["match"] == "Host(`go.durp.info`)"
+                assert refs == [{"name": "internal-go-proxy", "namespace": "traefik"}]
+                expected = "internal-go-proxy"
             else:
                 assert not any(m.get("namespace") == "traefik" and
-                               m["name"] in ["internal-only", "internet-access"] for m in refs), d["metadata"]["name"]
+                               m["name"] in ["internal-only", "internet-access", "internal-go-proxy"] for m in refs), d["metadata"]["name"]
             counts[expected] += 1
     assert counts["internal-only"] and counts["internet-access"]
     print("PASS route assignment:", dict(counts))
@@ -88,6 +92,18 @@ ranges = [ipaddress.ip_network(c) for c in mw["whitelist"]["ipAllowList"]["sourc
 for address, allowed in [("192.168.30.5", True), ("192.168.12.50", True),
                          ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in ranges) == allowed
+assert mw["internal-go-proxy"] == {"chain": {"middlewares": [
+    {"name": "go-proxy-whitelist"}, {"name": "baseline-headers"},
+]}}
+go_ranges = {ipaddress.ip_network(c) for c in mw["go-proxy-whitelist"]["ipAllowList"]["sourceRange"]}
+assert go_ranges == {ipaddress.ip_network(c) for c in [
+    "192.168.0.0/16", "10.244.7.0/24", "10.244.8.0/24", "10.244.5.0/24",
+]}
+for address, allowed in [("10.244.7.12", True), ("10.244.8.41", True),
+                         ("10.244.5.12", True), ("192.168.30.5", True),
+                         ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
+    assert any(ipaddress.ip_address(address) in n for n in go_ranges) == allowed
+print("PASS: Go-only runner ranges; global private allowlist unchanged")
 policy = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicy")
 assert policy["spec"]["failurePolicy"] == "Fail"
 binding = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicyBinding")
@@ -130,17 +146,35 @@ if args.admission_check:
     for key in ["object", "expected"]:
         mixed[key]["spec"]["routes"] += copy.deepcopy(cases[4][key]["spec"]["routes"] + cases[2][key]["spec"]["routes"])
     cases.append(mixed)
+    # A runner exception must not become an opt-out for unrelated private apps.
+    go_access = {"name": "internal-go-proxy", "namespace": "traefik"}
+    for name, namespace, resource, match, refs, allowed in [
+        ("Go runner exception", "internalproxy", "athens", "Host(`go.durp.info`)", [go_access], True),
+        ("Go exception preserves auth", "internalproxy", "athens", "Host(`go.durp.info`)", [go_access, auth], True),
+        ("Go exception wrong resource", "internalproxy", "other", "Host(`go.durp.info`)", [go_access], False),
+        ("Go exception wrong namespace", "other", "athens", "Host(`go.durp.info`)", [go_access], False),
+        ("Go exception wrong hostname", "internalproxy", "athens", "Host(`argocd.infra.durp.info`)", [go_access], False),
+        ("Go chain must be first", "internalproxy", "athens", "Host(`go.durp.info`)", [auth, go_access], False),
+    ]:
+        obj = copy.deepcopy(cases[0]["object"])
+        obj["metadata"] = {"name": resource, "namespace": namespace}
+        obj["spec"]["routes"][0].update(match=match, middlewares=refs)
+        cases.append({"name": name, "object": obj, "expected": copy.deepcopy(obj), "allowed": allowed})
     # Exercise the actual cleaned-up manifests, not just synthetic examples.
     for doc in source_docs:
         if doc.get("kind") != "IngressRoute":
             continue
-        expected = copy.deepcopy(doc)
+        obj = copy.deepcopy(doc)
+        if doc["metadata"]["name"] == "athens":
+            # Namespace is supplied by the Helm/ArgoCD destination at the API.
+            obj["metadata"]["namespace"] = "internalproxy"
+        expected = copy.deepcopy(obj)
         for route in expected["spec"]["routes"]:
             refs = route.get("middlewares", [])
-            if not (refs and refs[0] == public):
+            if not (refs and refs[0] in [public, go_access]):
                 route["middlewares"] = [private] + refs
         cases.append({"name": "manifest " + doc["metadata"]["name"],
-                      "object": doc, "expected": expected, "allowed": True})
+                      "object": obj, "expected": expected, "allowed": True})
     subprocess.run([str(args.admission_check.resolve())], input=json.dumps({
         "mutation": mutation["spec"]["mutations"][0]["jsonPatch"]["expression"],
         "validation": policy["spec"]["validations"][0]["expression"], "cases": cases,
@@ -180,7 +214,7 @@ for path in source_paths:
             expected = [x for x in old_mw
                         if not (x["name"] == "whitelist" and x.get("namespace", "traefik") == "traefik")]
             app_middleware = [x for x in a.get("middlewares", [])
-                              if not (x["name"] == "internet-access" and x.get("namespace") == "traefik")]
+                              if not (x["name"] in ["internet-access", "internal-go-proxy"] and x.get("namespace") == "traefik")]
             assert app_middleware == expected
             assert {k: v for k, v in a.items() if k != "middlewares"} == {
                 k: v for k, v in b.items() if k != "middlewares"}

@@ -19,7 +19,7 @@ spec:
         expression: >-
           object.spec.routes.transformList(i, r,
             !has(r.middlewares) || !r.middlewares.exists(m,
-              m.name in ['internal-only', 'internet-access'] &&
+              m.name in ['internal-only', 'internet-access', 'internal-go-proxy'] &&
               has(m.namespace) && m.namespace == 'traefik'),
             JSONPatch{
               op: 'add',

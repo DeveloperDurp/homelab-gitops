@@ -55,6 +55,34 @@ spec:
       - name: baseline-headers
 
 ---
+# Go-proxy-only exception: the dedicated runner nodes retain their pod source IPs.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: go-proxy-whitelist
+  namespace: traefik
+spec:
+  ipAllowList:
+    sourceRange:
+      - 192.168.0.0/16
+      # Match runner01/02/03-dmz spec.podCIDRs; review after node replacement.
+      - 10.244.7.0/24
+      - 10.244.8.0/24
+      - 10.244.5.0/24
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-go-proxy
+  namespace: traefik
+spec:
+  chain:
+    middlewares:
+      - name: go-proxy-whitelist
+      - name: baseline-headers
+
+---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
