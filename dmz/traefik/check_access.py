@@ -76,6 +76,9 @@ values = yaml.safe_load((DMZ / "traefik/values.yaml").read_text())["traefik"]
 assert values["service"]["spec"]["externalTrafficPolicy"] == "Local"
 assert values["providers"]["kubernetesIngress"]["enabled"] is False
 assert values["ingressRoute"]["dashboard"]["enabled"] is False
+assert values["ports"]["web"]["redirections"]["entryPoint"] == {
+    "to": "websecure", "scheme": "https", "permanent": True,
+}
 assert values["ports"]["websecure"]["proxyProtocol"]["trustedIPs"] == ["10.99.0.1/32"]
 mw = {d["metadata"]["name"]: d["spec"] for d in source_docs
       if d.get("kind") == "Middleware" and d["metadata"].get("namespace") == "traefik"}
@@ -242,6 +245,11 @@ if args.rendered_directory:
                       and d["metadata"]["name"] == "traefik-dmz")
     args = deployment["spec"]["template"]["spec"]["containers"][0]["args"]
     assert "--providers.kubernetesingress" not in args
+    assert {
+        "--entryPoints.web.http.redirections.entryPoint.to=:443",
+        "--entryPoints.web.http.redirections.entryPoint.scheme=https",
+        "--entryPoints.web.http.redirections.entryPoint.permanent=true",
+    } <= set(args)
     service = next(d for d in rendered if d.get("kind") == "Service"
                    and d["metadata"]["name"] == "traefik-dmz")
     assert service["spec"]["externalTrafficPolicy"] == "Local"
