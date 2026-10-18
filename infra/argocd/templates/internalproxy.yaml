@@ -19,5 +19,7 @@ spec:
       prune: true
       selfHeal: true  
     syncOptions:
-      - CreateNamespace=true 
+      - CreateNamespace=true
+      # Persist admission defaults even when client-side apply would be a no-op.
+      - ServerSideApply=true
 

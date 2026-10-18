@@ -191,7 +191,8 @@ apps = {d["metadata"]["name"]: d for d in documents(sorted((ROOT / "infra/argocd
 for name in ["internal-proxy", "searxng", "traefik-dmz"]:
     options = apps[name]["metadata"]["annotations"]["argocd.argoproj.io/compare-options"]
     assert {"ServerSideDiff=true", "IncludeMutationWebhook=true"} <= set(options.split(","))
-print("PASS: admission-aware ArgoCD diff for affected active Applications")
+assert "ServerSideApply=true" in apps["internal-proxy"]["spec"]["syncPolicy"]["syncOptions"]
+print("PASS: admission-aware ArgoCD diff and internal-proxy server-side apply")
 speed_docs = list(documents([DMZ / "openspeedtest/templates/ingress.yaml"]))
 speed_route = next(d for d in speed_docs if d["kind"] == "IngressRoute")
 assert speed_route["spec"]["routes"][0]["services"] == [{"name": "openspeedtest", "port": 3000}]
