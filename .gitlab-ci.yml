@@ -14,3 +14,4 @@ validate-ingress:
   script:
     - apk add --no-cache git python3 py3-yaml
     - python3 dmz/traefik/check_access.py
+    - python3 infra/longhorn/check_backup.py

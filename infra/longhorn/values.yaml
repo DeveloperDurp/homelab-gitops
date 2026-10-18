@@ -119,7 +119,7 @@ longhorn:
     storageNetwork: ~
   
   defaultBackupStore:
-    backupTarget: S3://longhorn-master@us-east-1/
+    backupTarget: s3://longhorn-backups@garage/
     backupTargetCredentialSecret: longhorn-backup-token-secret
     pollInterval: 300
   
