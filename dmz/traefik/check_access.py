@@ -203,6 +203,19 @@ assert speed_app["source"]["path"] == "dmz/openspeedtest" and "directory" not in
 assert speed_app["destination"] == {"name": "dmz", "namespace": "openspeedtest"}
 assert "CreateNamespace=true" in speed_app["syncPolicy"]["syncOptions"]
 print("PASS: OpenSpeedTest keeps its own ingress and same-namespace Service in DMZ; Helm Application restored")
+longhorn = {d["kind"]: d for d in documents([ROOT / "infra/longhorn/templates/ingress.yaml"])}
+longhorn_route = longhorn["IngressRoute"]["spec"]
+longhorn_front = next(d for d in source_docs if d.get("kind") == "IngressRoute"
+                     and d["metadata"]["name"] == "longhorn-infra-ingress")
+assert longhorn_route["entryPoints"] == ["websecure"]
+assert longhorn_route["routes"][0]["match"] == longhorn_front["spec"]["routes"][0]["match"]
+assert longhorn_route["routes"][0]["services"] == [{"name": "longhorn-frontend", "port": 80}]
+assert not longhorn_route["routes"][0].get("middlewares")
+longhorn_cert = longhorn["Certificate"]["spec"]
+assert longhorn_cert["secretName"] == longhorn_route["tls"]["secretName"]
+assert longhorn_cert["issuerRef"] == {"name": "vault-issuer", "kind": "ClusterIssuer"}
+assert longhorn_cert["dnsNames"] == ["longhorn.infra.durp.info"]
+print("PASS: infra Longhorn backend ingress and TLS; no redundant backend middleware")
 print("PASS: source-IP guardrails, fail-closed policy, preserved authentication and TCP/backends")
 if args.rendered_directory:
     rendered = list(documents(sorted(args.rendered_directory.glob("*.yaml"))))
