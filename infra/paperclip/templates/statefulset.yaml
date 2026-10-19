@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: paperclip
+spec:
+  serviceName: paperclip-headless
+  # Keep one writer per persistent Paperclip home.
+  replicas: 1
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  selector:
+    matchLabels:
+      app: paperclip
+  template:
+    metadata:
+      labels:
+        app: paperclip
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 90
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: paperclip
+          image: {{ .Values.paperclip.image | quote }}
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - {name: HOST, value: "0.0.0.0"}
+            - {name: PORT, value: "3100"}
+            - {name: SERVE_UI, value: "true"}
+            - {name: PAPERCLIP_HOME, value: /paperclip}
+            - {name: PAPERCLIP_DEPLOYMENT_MODE, value: authenticated}
+            - {name: PAPERCLIP_DEPLOYMENT_EXPOSURE, value: private}
+            - {name: PAPERCLIP_PUBLIC_URL, value: "https://paperclip.internal.durp.info"}
+            - {name: PAPERCLIP_AUTH_PUBLIC_BASE_URL, value: "https://paperclip.internal.durp.info"}
+            - {name: PAPERCLIP_ALLOWED_HOSTNAMES, value: "paperclip.internal.durp.info"}
+            # CNPG's URI already escapes its generated application password.
+            - name: PAPERCLIP_DATABASE_URI
+              valueFrom:
+                secretKeyRef:
+                  name: paperclip-db-app
+                  key: uri
+            - name: DATABASE_URL
+              value: "$(PAPERCLIP_DATABASE_URI)?sslmode=verify-full"
+            # Paperclip uses postgres.js, which relies on Node's CA trust.
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/paperclip-db-ca/ca.crt
+          envFrom:
+            - secretRef:
+                name: paperclip
+          ports:
+            - {name: http, containerPort: 3100}
+          startupProbe:
+            exec:
+              command: [node, -e, "fetch('http://127.0.0.1:3100/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: [node, -e, "fetch('http://127.0.0.1:3100/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: http}
+            initialDelaySeconds: 30
+          resources:
+            {{- toYaml .Values.paperclip.resources | nindent 12 }}
+          volumeMounts:
+            - {name: paperclip-data, mountPath: /paperclip}
+            - {name: paperclip-tmp, mountPath: /tmp}
+            - {name: database-ca, mountPath: /etc/paperclip-db-ca, readOnly: true}
+      volumes:
+        - name: paperclip-tmp
+          emptyDir: {sizeLimit: 2Gi}
+        - name: database-ca
+          secret:
+            secretName: paperclip-db-ca
+            items:
+              - {key: ca.crt, path: ca.crt}
+  volumeClaimTemplates:
+    - metadata:
+        name: paperclip-data
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ .Values.storageClass | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.paperclip.storage | quote }}

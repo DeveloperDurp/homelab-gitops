@@ -1,0 +1,37 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: paperclip-db
+spec:
+  instances: 3
+  imageName: {{ .Values.database.image | quote }}
+  imagePullPolicy: Always
+  enableSuperuserAccess: false
+  postgresUID: 26
+  postgresGID: 26
+  # CNPG generates paperclip-db-app (including its URI) and paperclip-db-ca.
+  # No static password, Vault database password, or managed-role workaround.
+  bootstrap:
+    initdb:
+      database: paperclip
+      owner: paperclip
+  storage:
+    size: {{ .Values.database.storage | quote }}
+    storageClass: {{ .Values.storageClass | quote }}
+    pvcTemplate:
+      accessModes: [ReadWriteOnce]
+  resources:
+    {{- toYaml .Values.database.resources | nindent 4 }}
+  ephemeralVolumesSizeLimit:
+    temporaryData: 1Gi
+  postgresql:
+    pg_hba:
+      - hostnossl all all all reject
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
