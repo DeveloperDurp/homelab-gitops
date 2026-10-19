@@ -1,5 +1,5 @@
 paperclip:
-  image: ghcr.io/paperclipai/paperclip:2026.1012.0@sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
+  image: harbor.durp.info/github/paperclipai/paperclip:2026.1012.0@sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
   vaultKey: kv/paperclip
   storage: 20Gi
   resources:
@@ -13,7 +13,7 @@ paperclip:
       ephemeral-storage: 3Gi
 storageClass: nfs-client
 database:
-  image: ghcr.io/cloudnative-pg/postgresql:17.10-system-trixie@sha256:74f29d3343f8db89135b33b0b4c55641c415b96d08605034a6d0c2782f929146
+  image: harbor.durp.info/github/cloudnative-pg/postgresql:17.10-system-trixie@sha256:74f29d3343f8db89135b33b0b4c55641c415b96d08605034a6d0c2782f929146
   storage: 10Gi
   resources:
     requests:
