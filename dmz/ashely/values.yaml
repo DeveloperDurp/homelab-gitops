@@ -1,0 +1,20 @@
+ashely:
+  image: harbor.durp.info/dockerhub/nousresearch/hermes-agent:v0.22.2@sha256:36099926da316742423544e055d4734777105ffe6341873af5459b957d0c2919
+  vaultKey: kv/ashely
+  storage: 10Gi
+  model:
+    provider: opencode-go
+    default: glm-5.3-flash
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+      ephemeral-storage: 256Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+      ephemeral-storage: 3Gi
+runtime:
+  # Only copies /usr/bin/tini; the Paperclip server does not run in DMZ.
+  image: harbor.durp.info/github/paperclipai/paperclip:2026.1012.0@sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
+storageClass: nfs-client

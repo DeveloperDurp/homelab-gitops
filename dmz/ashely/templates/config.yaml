@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ashely-config
+data:
+  config.yaml: |
+    model:
+      {{- toYaml .Values.ashely.model | nindent 6 }}
+    approvals:
+      # Paperclip-driven runs have no interactive approval channel.
+      mode: "off"
+      mcp_reload_confirm: false
+      destructive_slash_confirm: false
+    database:
+      # Fresh NFS-backed state must not use SQLite's shared-memory WAL mode.
+      journal_mode: delete
+      synchronous: FULL
+    terminal:
+      backend: local
+      cwd: /opt/data/workspace
+    auxiliary:
+      compression:
+        provider: main
+      title_generation:
+        provider: main

@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ashely
+spec:
+  serviceName: ashely-headless
+  # One writer for the NFS-backed SQLite home.
+  replicas: 1
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  selector:
+    matchLabels:
+      app: ashely
+  template:
+    metadata:
+      labels:
+        app: ashely
+      annotations:
+        checksum/ashely-config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 90
+      nodeSelector:
+        workload: hermes
+      tolerations:
+        - key: dedicated
+          operator: Equal
+          value: hermes
+          effect: NoSchedule
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # The Hermes image's /usr/bin/tini is an s6 shim. Copy a real tini
+        # from the pinned helper image, without running Paperclip in this pod.
+        - name: prepare-runtime
+          image: {{ .Values.runtime.image | quote }}
+          imagePullPolicy: Always
+          command: [sh, -ec]
+          args:
+            - cp -f /usr/bin/tini /runtime/tini && chmod 0555 /runtime/tini
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 100m, memory: 64Mi}
+          volumeMounts:
+            - {name: runtime, mountPath: /runtime}
+        - name: prepare-ashely
+          image: {{ .Values.ashely.image | quote }}
+          imagePullPolicy: Always
+          command: [/opt/hermes/.venv/bin/python, -c]
+          args:
+            - |
+              from pathlib import Path
+              import os, shutil
+              if len(os.environ['API_SERVER_KEY']) < 32:
+                  raise SystemExit('API_SERVER_KEY must contain at least 32 characters')
+              if not os.environ['OPENCODE_GO_API_KEY'].strip():
+                  raise SystemExit('OPENCODE_GO_API_KEY must not be empty')
+              Path('/opt/data/workspace').mkdir(exist_ok=True)
+              Path('/tmp/ashely-runtime').mkdir(mode=0o700, exist_ok=True)
+              shutil.copyfile('/etc/ashely/config.yaml', '/opt/data/config.yaml')
+          env:
+            {{- range $key := list "API_SERVER_KEY" "OPENCODE_GO_API_KEY" }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: ashely
+                  key: {{ $key }}
+            {{- end }}
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits: {cpu: 250m, memory: 256Mi}
+          volumeMounts:
+            - {name: ashely-data, mountPath: /opt/data}
+            - {name: ashely-config, mountPath: /etc/ashely, readOnly: true}
+            - {name: ashely-tmp, mountPath: /tmp}
+      containers:
+        - name: ashely
+          image: {{ .Values.ashely.image | quote }}
+          imagePullPolicy: Always
+          command: [/runtime/tini, --, /opt/hermes/.venv/bin/hermes]
+          args: [gateway, run, --no-supervise, --external-supervisor]
+          workingDir: /opt/data/workspace
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - {name: HOME, value: /opt/data}
+            - {name: HERMES_HOME, value: /opt/data}
+            - {name: API_SERVER_ENABLED, value: "true"}
+            - {name: API_SERVER_HOST, value: "0.0.0.0"}
+            - {name: API_SERVER_PORT, value: "8642"}
+            - {name: PAPERCLIP_API_URL, value: "https://paperclip.internal.durp.info"}
+          envFrom:
+            - secretRef:
+                name: ashely
+          ports:
+            - {name: api, containerPort: 8642}
+          startupProbe:
+            exec:
+              command: [/opt/hermes/.venv/bin/python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8642/health', timeout=3)"]
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: [/opt/hermes/.venv/bin/python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8642/health', timeout=3)"]
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command: [/opt/hermes/.venv/bin/python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8642/health', timeout=3)"]
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.ashely.resources | nindent 12 }}
+          volumeMounts:
+            - {name: ashely-data, mountPath: /opt/data}
+            - {name: ashely-tmp, mountPath: /tmp}
+            - {name: runtime, mountPath: /runtime, readOnly: true}
+      volumes:
+        - name: ashely-config
+          configMap:
+            name: ashely-config
+        - name: runtime
+          emptyDir: {sizeLimit: 1Mi}
+        - name: ashely-tmp
+          emptyDir: {sizeLimit: 2Gi}
+  volumeClaimTemplates:
+    - metadata:
+        name: ashely-data
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ .Values.storageClass | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.ashely.storage | quote }}

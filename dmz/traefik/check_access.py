@@ -89,6 +89,7 @@ assert ranges == {ipaddress.ip_network(c) for c in [
     "192.168.0.0/16", "10.244.7.0/24", "10.244.8.0/24", "10.244.5.0/24",
 ]}
 for address, allowed in [("192.168.30.5", True), ("192.168.12.50", True),
+                         ("192.168.98.31", True), ("192.168.98.32", True), ("192.168.98.33", True),
                          ("10.244.7.12", True), ("10.244.8.41", True), ("10.244.5.12", True),
                          ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in ranges) == allowed

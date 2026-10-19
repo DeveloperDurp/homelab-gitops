@@ -1,0 +1,36 @@
+nfs-subdir-external-provisioner:
+  image:
+    pullPolicy: Always
+  nfs:
+    server: 192.168.21.200
+    path: /mnt/user/talos-dmz
+    volumeName: nfs-dmz-root
+    reclaimPolicy: Retain
+    # Applies to both the provisioner's bootstrap PV and provisioned volumes.
+    mountOptions:
+      - nfsvers=4.1
+      - proto=tcp
+      - port=2049
+      - hard
+  storageClass:
+    name: nfs-client
+    provisionerName: dmz/nfs-client
+    defaultClass: false
+    reclaimPolicy: Retain
+    archiveOnDelete: true
+    allowVolumeExpansion: false
+  # Keep all NFS mount sources inside the three-node firewall allowance.
+  nodeSelector:
+    workload: hermes
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: hermes
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi

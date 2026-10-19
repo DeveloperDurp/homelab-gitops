@@ -28,8 +28,9 @@ metadata:
   namespace: traefik
 spec:
   ipAllowList:
-    # LAN/VLAN clients and dedicated CI nodes only; never trust all pods or the proxy transit IP.
+    # LAN/VLAN clients and dedicated CI pods; never trust all pods or the proxy transit IP.
     sourceRange:
+      # Includes Hermes workers 192.168.98.31/32/33; pod sources need their own CIDRs.
       - 192.168.0.0/16
       # Runner01/02/03-dmz spec.podCIDRs; review after node replacement.
       - 10.244.7.0/24

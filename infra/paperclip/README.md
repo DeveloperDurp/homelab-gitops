@@ -2,9 +2,9 @@
 
 `paperclip-infra` deploys one Paperclip instance and CloudNativePG Cluster
 `paperclip-db` into infra's `paperclip` namespace. This chart deploys the
-management application and database only; no agent runtime or model provider
-is configured. Local adapters execute on the Paperclip host, so assess their
-access before enabling them.
+management application and database only. A separate DMZ Ashely gateway is
+configured in [`dmz/ashely`](../../dmz/ashely/README.md). Local adapters execute
+on the Paperclip host, so assess their access before enabling them.
 
 | Component | Cluster | Persistent storage |
 | --- | --- | --- |
@@ -24,8 +24,13 @@ relies on admission to prepend `traefik/internal-only` and has no public
 ExternalDNS record or internet-access exception. Certificates at DMZ and infra
 use the existing `letsencrypt-production` ClusterIssuers. The explicit backend
 ServersTransport uses `insecureSkipVerify: false`, overriding the legacy
-global skip-verify setting for this route. No additional ingress listener or
-shared Traefik configuration change is needed.
+global skip-verify setting for this route.
+
+Hermes callbacks use this same DMZ HTTPS/443 path through normal private DNS,
+with a scoped Paperclip API key. The existing LAN/VLAN allowlist includes its
+three worker IPs. Verify actual pod source addresses during deployment and add
+the assigned Hermes pod subnets if source IPs are retained. No separate callback
+listener or infra Traefik configuration change is needed.
 
 ## Database and storage
 
@@ -59,9 +64,9 @@ and disables service-account token mounting.
 
 ## Before merge
 
-The new Application and existing `internal-proxy` follow `main` with automatic
-sync/prune/self-heal; a human merge starts reconciliation. No live changes are
-performed while preparing the MR.
+The Applications and existing `internal-proxy` follow `main` with automatic
+sync/prune/self-heal; a human merge starts reconciliation. No live changes
+are performed while preparing the MR.
 
 1. Confirm the existing infra operator/CRDs, NFS provisioner, `nfs-client` and
    Vault ClusterSecretStore are healthy. Paperclip's Application skips dry-run
@@ -89,7 +94,8 @@ performed while preparing the MR.
 2. Verify private DNS, TLS, DMZ source filtering and backend TLS forwarding.
    Confirm login is required and unauthenticated protected API calls are denied.
 3. Open `https://paperclip.internal.durp.info`, complete first-user/login and
-   company setup. Agent runtime selection is deferred.
+   company setup. Follow the [Ashely connection steps](../../dmz/ashely/README.md#connect-to-paperclip)
+   to register the remote DMZ gateway.
 4. Verify NFS persistence, local temporary files and authorized restart/database
    failover. Arrange CNPG-compatible database backups and separate share backups.
    ExternalSecrets refresh hourly; env credentials are read at startup, so
