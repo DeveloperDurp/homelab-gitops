@@ -26,7 +26,7 @@ deployment; these cannot be inferred from worker IPs and have not been verified.
 The 10 GiB home uses DMZ's retaining `nfs-client` StorageClass, provided by the
 new `nfs-dmz` Application. Its bootstrap and dynamic PVs force
 `nfsvers=4.1,proto=tcp,port=2049,hard` to
-`192.168.21.200:/mnt/user/talos-dmz`. The provisioner also selects the Hermes
+`192.168.21.200:/mnt/zarray/talos-dmz`. The provisioner also selects the Hermes
 pool so all NFS mount sources fit the `.31`–`.33` node firewall allowance.
 The StatefulSet retains its claim on deletion or scale-down. Requests are not
 server-side quotas; monitor actual share usage.
@@ -66,7 +66,7 @@ Merging starts reconciliation. Existing infra Traefik listeners are unchanged;
 no extra callback port is added. This does not create a Paperclip account or
 agent automatically.
 
-1. Create/confirm export `192.168.21.200:/mnt/user/talos-dmz` with NFSv4.1,
+1. Create/confirm export `192.168.21.200:/mnt/zarray/talos-dmz` with NFSv4.1,
    durable writes/locking, and UID/GID 10000 writable ownership. Allow only the
    Hermes workers `192.168.98.31`–`.33` to server TCP/2049 with established
    replies, and restrict export clients accordingly. No Unraid DMZ IP or array
@@ -117,6 +117,15 @@ offline-consistent home before cutover. Do not mount one SQLite home from
 multiple writers, copy active WAL state, or delete PVCs to make sync succeed.
 
 Reference: [Paperclip Hermes gateway adapter](https://docs.paperclip.ing/reference/adapters/hermes-gateway/).
+
+Unraid exports the pool path `/mnt/zarray/talos-dmz`; `/mnt/user/talos-dmz` is
+a symlink and is not the exported NFS path. The provisioner uses resource name
+`nfs-dmz-zarray` to create a new bootstrap PV/PVC instead of changing the old
+PV's immutable NFS source. Automatic sync/prune retires the previous provisioner
+and its bootstrap resources. This does not delete share files or Ashely's claims;
+the StorageClass/provisioner identity stays `nfs-client` / `dmz/nfs-client`.
+Existing dynamically provisioned PVs, if any, retain their original immutable
+paths and need a separate migration plan; this change does not rewrite them.
 This rename changes the namespace, workload, PVC name, hostname and Vault path.
 If an earlier revision was deployed, preserve its old claim and credentials and
 plan an explicit offline home migration before switching. New claims do not

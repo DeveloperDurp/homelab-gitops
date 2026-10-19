@@ -1,9 +1,11 @@
 nfs-subdir-external-provisioner:
+  # New bootstrap PV/PVC names: an existing PV's NFS path is immutable.
+  fullnameOverride: nfs-dmz-zarray
   image:
     pullPolicy: Always
   nfs:
     server: 192.168.21.200
-    path: /mnt/user/talos-dmz
+    path: /mnt/zarray/talos-dmz
     volumeName: nfs-dmz-root
     reclaimPolicy: Retain
     # Applies to both the provisioner's bootstrap PV and provisioned volumes.
