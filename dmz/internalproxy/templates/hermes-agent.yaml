@@ -1,0 +1,51 @@
+# This is the Discord-connected Hermes VM, not the separate DMZ Hermes workload.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hermes-agent-ingress
+spec:
+  entryPoints: [websecure]
+  routes:
+    # Admission supplies internal-only; Hermes requires its own gateway API key.
+    - match: Host(`hermes-agent.internal.durp.info`)
+      kind: Rule
+      services:
+        - name: hermes-agent
+          port: 8642
+          scheme: http
+  tls:
+    secretName: hermes-agent-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-agent
+spec:
+  ports:
+    - name: api
+      port: 8642
+      targetPort: 8642
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: hermes-agent
+subsets:
+  - addresses:
+      - ip: 192.168.12.50
+    ports:
+      - name: api
+        port: 8642
+        protocol: TCP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hermes-agent-tls
+spec:
+  secretName: hermes-agent-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames: [hermes-agent.internal.durp.info]

@@ -269,6 +269,18 @@ for kind in ["Service", "Endpoints"]:
     if kind == "Service":
         assert port["targetPort"] == 3909
 print("PASS: Garage UI uses Authentik, implicit private access, TLS and matching Unraid ports")
+hermes_vm = {d["kind"]: d for d in documents([DMZ / "internalproxy/templates/hermes-agent.yaml"])}
+hermes_rule = hermes_vm["IngressRoute"]["spec"]["routes"][0]
+assert hermes_rule["match"] == "Host(`hermes-agent.internal.durp.info`)"
+assert not hermes_rule.get("middlewares")
+assert hermes_rule["services"] == [{"name": "hermes-agent", "port": 8642, "scheme": "http"}]
+assert hermes_vm["Service"]["spec"]["ports"] == [
+    {"name": "api", "port": 8642, "targetPort": 8642, "protocol": "TCP"}]
+assert hermes_vm["Endpoints"]["subsets"] == [{"addresses": [{"ip": "192.168.12.50"}],
+    "ports": [{"name": "api", "port": 8642, "protocol": "TCP"}]}]
+assert hermes_vm["Certificate"]["spec"]["secretName"] == hermes_vm["IngressRoute"]["spec"]["tls"]["secretName"]
+assert hermes_vm["Certificate"]["spec"]["dnsNames"] == ["hermes-agent.internal.durp.info"]
+print("PASS: Discord Hermes VM API has default-private ingress, TLS and matching backend ports")
 print("PASS: source-IP guardrails, fail-closed policy, preserved authentication and TCP/backends")
 if args.rendered_directory:
     rendered = list(documents(sorted(args.rendered_directory.glob("*.yaml"))))
