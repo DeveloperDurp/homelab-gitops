@@ -87,11 +87,14 @@ assert mw["internet-access"] == {"chain": {"middlewares": [{"name": "baseline-he
 ranges = {ipaddress.ip_network(c) for c in mw["whitelist"]["ipAllowList"]["sourceRange"]}
 assert ranges == {ipaddress.ip_network(c) for c in [
     "192.168.0.0/16", "10.244.7.0/24", "10.244.8.0/24", "10.244.5.0/24",
+    "10.244.12.0/24", "10.244.9.0/24", "10.244.11.0/24",
 ]}
 for address, allowed in [("192.168.30.5", True), ("192.168.12.50", True),
                          ("192.168.98.31", True), ("192.168.98.32", True), ("192.168.98.33", True),
                          ("10.244.7.12", True), ("10.244.8.41", True), ("10.244.5.12", True),
-                         ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
+                         ("10.244.12.12", True), ("10.244.9.12", True), ("10.244.11.2", True),
+                         ("10.244.6.1", False), ("10.244.10.2", False),
+                         ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in ranges) == allowed
 assert mw["internal-go-proxy"] == {"chain": {"middlewares": [
     {"name": "go-proxy-whitelist"}, {"name": "baseline-headers"},
@@ -99,13 +102,16 @@ assert mw["internal-go-proxy"] == {"chain": {"middlewares": [
 go_ranges = {ipaddress.ip_network(c) for c in mw["go-proxy-whitelist"]["ipAllowList"]["sourceRange"]}
 assert go_ranges == {ipaddress.ip_network(c) for c in [
     "192.168.0.0/16", "10.244.7.0/24", "10.244.8.0/24", "10.244.5.0/24",
+    "10.244.12.0/24", "10.244.9.0/24", "10.244.11.0/24",
 ]}
 for address, allowed in [("10.244.7.12", True), ("10.244.8.41", True),
                          ("10.244.5.12", True), ("192.168.30.5", True),
-                         ("10.244.6.1", False), ("10.99.0.1", False), ("1.1.1.1", False)]:
+                         ("10.244.12.12", True), ("10.244.9.12", True), ("10.244.11.2", True),
+                         ("10.244.6.1", False), ("10.244.10.2", False),
+                         ("10.99.0.1", False), ("1.1.1.1", False)]:
     assert any(ipaddress.ip_address(address) in n for n in go_ranges) == allowed
 assert go_ranges == ranges  # Keep the deployed Athens chain compatible during independent app syncs.
-print("PASS: dedicated runner subnets allowed globally; unrelated pods and public clients denied")
+print("PASS: dedicated runner/Hermes subnets allowed globally; unrelated pods and public clients denied")
 policy = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicy")
 assert policy["spec"]["failurePolicy"] == "Fail"
 binding = next(d for d in source_docs if d.get("kind") == "ValidatingAdmissionPolicyBinding")

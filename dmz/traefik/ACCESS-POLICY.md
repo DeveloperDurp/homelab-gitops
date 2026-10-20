@@ -7,8 +7,10 @@ prepends `internal-only`, preserving any other application middleware. Explicit
 
 - `internal-only`: the default choice. Allows `192.168.0.0/16` LAN/VLAN clients
   and dedicated runner-node pod CIDRs `10.244.7.0/24`, `10.244.8.0/24`, and
-  `10.244.5.0/24` through the shared `whitelist`, then adds `nosniff`.
-  CI jobs can reach all private DMZ HTTP routes, including management UIs;
+  `10.244.5.0/24`, plus Hermes-node pod CIDRs `10.244.12.0/24`,
+  `10.244.9.0/24`, and `10.244.11.0/24`, through the shared `whitelist`, then
+  adds `nosniff`. CI jobs and Hermes pods can reach all private DMZ HTTP routes,
+  including management UIs and Paperclip callbacks;
   Authentik and application authentication are not bypassed.
 - `internal-go-proxy`: legacy compatibility chain for the old live Athens route
   during independent Application syncs. No source route selects it anymore:
@@ -35,7 +37,7 @@ Routes without a matching annotation are internal-only, including
 `searxng.internal`, `gitlab-old`, `freshrss`, ArgoCD, Longhorn, and management UIs.
 `garage.internal.durp.info` is private by default and additionally requires
 Authentik before proxying to Unraid's HTTP UI on port 3909; it is not the S3 API.
-There are 17 explicit public rules and 18 default-private rules in the current
+There are 17 explicit public rules and 21 default-private rules in the current
 sources. No route redundantly lists `internal-only` or selects the legacy Go chain.
 
 This is explicit configuration, not a runtime DNS-based authorization decision.
@@ -74,7 +76,7 @@ Source manifests list public exceptions (`internet-access`) and app-specific
 middleware. All internal routes, including Athens, omit the access chain and
 rely on admission defaulting.
 
-For global runner access, sync `traefik-dmz` to update the shared allowlist.
+For global runner/Hermes access, sync `traefik-dmz` to update the shared allowlist.
 Existing routes using `internal-only` inherit the change. Then sync
 `internal-proxy` so Athens also receives the default `internal-only` chain;
 backend TLS remains unchanged. Keep the legacy Go middleware compatible until
@@ -83,7 +85,7 @@ needed. Verify
 real runner access to representative private routes and a Go module download;
 public-VPS requests must remain 403, including spoofed forwarding headers.
 These are node pod-subnet allowances, not pod-identity authorization: any pod on
-those dedicated nodes has this ingress access. Review the three CIDRs after node
+those dedicated nodes has this ingress access. Review all six pod CIDRs after node
 replacement; never add all of `10.0.0.0/8` globally. The exception does not change
 firewalls, direct cluster access, raw TCP routing, DNS or authentication.
 The active `internal-proxy`, `searxng`, and `traefik-dmz` Applications enable
@@ -106,7 +108,7 @@ WireGuard peer `10.99.0.1/32`. The trust range is not widened.
 
 Do not add `10.244.0.0/16`, the proxy transit address, or broad private ranges back
 to the allowlist to work around an incorrectly preserved source address. Only
-the three explicitly trusted runner-node pod subnets are allowed; other pod
+the six explicitly trusted runner/Hermes-node pod subnets are allowed; other pod
 callers need a deliberate service-to-service path. Being inside Kubernetes alone
 does not grant access. Runner DNS must resolve private routes to the LAN ingress;
 hairpinning through the public VPS does not make its public source IP trusted.

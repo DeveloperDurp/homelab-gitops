@@ -19,9 +19,12 @@ NetworkPolicy enforcement and Traefik labels during deployment acceptance.
 Paperclip callbacks use normal private DNS and HTTPS on TCP/443 through DMZ
 Traefik at `https://paperclip.internal.durp.info`, with the scoped agent key.
 The existing `192.168.0.0/16` allowlist includes all three Hermes worker IPs
-(`192.168.98.31`–`.33`). If Traefik instead sees the original pod source, add the
-actual assigned Hermes node pod CIDRs to the allowlist before accepting the
-deployment; these cannot be inferred from worker IPs and have not been verified.
+(`192.168.98.31`–`.33`). Same-cluster callbacks retain pod source addresses, so
+its default whitelist also includes the verified node pod CIDRs:
+`hermes01-dmz: 10.244.12.0/24`, `hermes02-dmz: 10.244.9.0/24`, and
+`hermes03-dmz: 10.244.11.0/24`. Any pod on those dedicated nodes gains the same
+private-ingress reachability; API/application authentication remains required.
+Review these assigned CIDRs after node replacement; never allow all pod CIDRs.
 
 The 10 GiB home uses DMZ's retaining `nfs-client` StorageClass, provided by the
 new `nfs-dmz` Application. Its bootstrap and dynamic PVs force
