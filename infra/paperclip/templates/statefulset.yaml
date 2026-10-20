@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: paperclip
+      annotations:
+        checksum/hermes-stream-fix: {{ include (print $.Template.BasePath "/hermes-stream-fix.yaml") . | sha256sum }}
     spec:
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 90
@@ -24,6 +26,26 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: patch-hermes-stream
+          image: {{ .Values.paperclip.image | quote }}
+          imagePullPolicy: Always
+          command: [node, /etc/paperclip-patches/patch-hermes-gateway.mjs]
+          args:
+            - /app/packages/adapters/hermes/src/gateway/server/execute.ts
+            - /patched-hermes/execute.ts
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 100m, memory: 128Mi}
+          volumeMounts:
+            - {name: hermes-stream-script, mountPath: /etc/paperclip-patches, readOnly: true}
+            - {name: hermes-stream-overlay, mountPath: /patched-hermes}
       containers:
         - name: paperclip
           image: {{ .Values.paperclip.image | quote }}
@@ -79,7 +101,17 @@ spec:
             - {name: paperclip-data, mountPath: /paperclip}
             - {name: paperclip-tmp, mountPath: /tmp}
             - {name: database-ca, mountPath: /etc/paperclip-db-ca, readOnly: true}
+            # The pinned image resolves its built-in adapter to this source file.
+            - name: hermes-stream-overlay
+              mountPath: /app/packages/adapters/hermes/src/gateway/server/execute.ts
+              subPath: execute.ts
+              readOnly: true
       volumes:
+        - name: hermes-stream-script
+          configMap:
+            name: paperclip-hermes-stream-fix
+        - name: hermes-stream-overlay
+          emptyDir: {sizeLimit: 1Mi}
         - name: paperclip-tmp
           emptyDir: {sizeLimit: 2Gi}
         - name: database-ca

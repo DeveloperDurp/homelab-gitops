@@ -16,3 +16,11 @@ validate-ingress:
     - python3 dmz/traefik/check_access.py
     - python3 infra/longhorn/check_backup.py
     - python3 dmz/ashely/check_credentials.py
+    - python3 infra/paperclip/tests/check_hermes_overlay.py
+
+validate-paperclip-hermes-stream:
+  image:
+    name: harbor.durp.info/github/paperclipai/paperclip:2026.1012.0@sha256:1661b3dd3fdf7a9b59542d1ced464c3faf9dc8309798b4d15a9923ed32795307
+    entrypoint: [""]
+  script:
+    - node --import /app/server/node_modules/tsx/dist/loader.mjs infra/paperclip/tests/hermes-streaming.mjs

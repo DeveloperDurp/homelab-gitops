@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperclip-hermes-stream-fix
+data:
+  patch-hermes-gateway.mjs: |
+    {{- .Files.Get "files/patch-hermes-gateway.mjs" | nindent 4 }}

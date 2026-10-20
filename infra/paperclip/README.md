@@ -64,6 +64,34 @@ and disables service-account token mounting.
 
 ## Before merge
 
+### Temporary Hermes streaming backport
+
+The pinned Paperclip image has [upstream issue #9901](https://github.com/paperclipai/paperclip/issues/9901):
+duplicate raw token logs corrupt the UI's structured event parsing. A nonroot
+init container using the same image validates the adapter's exact source hash
+and expected block, then writes a patched file into a local `emptyDir`. Only
+that file is mounted read-only into Paperclip. The init container has no
+application-home or Secret mounts. Each delta is logged once as a complete
+JSON event, preserving whitespace, newlines and long fragments; other events
+and run handling are unchanged.
+
+The checksum annotation rolls Paperclip when the patch changes. Any upstream
+adapter source change makes init fail before Paperclip starts, requiring explicit
+revalidation or removal of the overlay during image upgrades. Remove the patch
+ConfigMap, script, checksum annotation, init container and both patch volumes/
+mounts once a pinned upstream release is verified to include the fix.
+
+Human merge restarts the single Paperclip pod, briefly interrupting service and
+potentially active runs. This fixes streaming display/fallback assembly, not
+model latency, and does not rewrite existing saved run logs. No database,
+credentials, PVCs, Ashely configuration or live resources are changed here.
+
+Run the regression fixture against the same pinned image as the chart; see
+`tests/hermes-streaming.mjs`. It uses synthetic in-process gateway responses
+and requires no provider credentials or network access.
+
+### Deployment prerequisites
+
 The Applications and existing `internal-proxy` follow `main` with automatic
 sync/prune/self-heal; a human merge starts reconciliation. No live changes
 are performed while preparing the MR.
