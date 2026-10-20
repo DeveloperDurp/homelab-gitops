@@ -12,6 +12,7 @@ validate-ingress:
     # The regression check reads the pinned pre-migration commit.
     GIT_DEPTH: "0"
   script:
-    - apk add --no-cache git python3 py3-yaml
+    - apk add --no-cache git python3 py3-yaml helm
     - python3 dmz/traefik/check_access.py
     - python3 infra/longhorn/check_backup.py
+    - python3 dmz/ashely/check_credentials.py

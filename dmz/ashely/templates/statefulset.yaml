@@ -65,11 +65,13 @@ spec:
                   raise SystemExit('API_SERVER_KEY must contain at least 32 characters')
               if not os.environ['OPENCODE_GO_API_KEY'].strip():
                   raise SystemExit('OPENCODE_GO_API_KEY must not be empty')
+              if not os.environ['PAPERCLIP_API_KEY'].strip():
+                  raise SystemExit('PAPERCLIP_API_KEY must not be empty')
               Path('/opt/data/workspace').mkdir(exist_ok=True)
               Path('/tmp/ashely-runtime').mkdir(mode=0o700, exist_ok=True)
               shutil.copyfile('/etc/ashely/config.yaml', '/opt/data/config.yaml')
           env:
-            {{- range $key := list "API_SERVER_KEY" "OPENCODE_GO_API_KEY" }}
+            {{- range $key := list "API_SERVER_KEY" "OPENCODE_GO_API_KEY" "PAPERCLIP_API_KEY" }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:

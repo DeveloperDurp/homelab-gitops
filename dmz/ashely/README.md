@@ -46,8 +46,13 @@ Paperclip-driven tasks run unattended. MCP reload and destructive session slash
 command confirmations are disabled too. The API still requires its gateway
 key; the container remains nonroot without host mounts or a Kubernetes token.
 
-Init checks reject a missing/short gateway key or empty provider key before
-starting the API. A pinned helper image supplies a real `tini` binary because
+The ExternalSecret explicitly requires `API_SERVER_KEY`, `OPENCODE_GO_API_KEY`,
+and `PAPERCLIP_API_KEY` from `kv/ashely`. Init checks reject a missing/short
+gateway key or empty provider/Paperclip key before starting the API. The main
+container imports the same Secret; it does not receive the callback credential
+automatically from the Paperclip gateway adapter. Readiness is only gateway
+health, not proof that the Paperclip credential is valid or correctly scoped.
+A pinned helper image supplies a real `tini` binary because
 the Hermes image's `/usr/bin/tini` is an s6 shim. It does not run Paperclip or
 receive Paperclip credentials. Gateway/helper images are digest-pinned and use
 `imagePullPolicy: Always`. Arrange independent share backups and recovery tests;
@@ -76,9 +81,20 @@ agent automatically.
    maintenance is included. Infra's `talos-infra` export/provisioner is unchanged.
 2. Confirm the DMZ Vault ClusterSecretStore is healthy and can read KV v2
    `kv/ashely`. Populate only this new gateway's credentials there:
-   `OPENCODE_GO_API_KEY` and an independent `API_SERVER_KEY` generated with
-   `openssl rand -hex 32`. Keep the existing VM's credentials separate. The
-   whole record is imported; do not put unrelated secrets here.
+   `OPENCODE_GO_API_KEY`, an independent `API_SERVER_KEY` generated with
+   `openssl rand -hex 32`, and Ashely's agent-scoped `PAPERCLIP_API_KEY`.
+   Recover the existing stored/claimed agent key first; do not create a duplicate
+   agent or replay a one-time claim. If bootstrapping a new deployment, establish
+   its Paperclip agent identity/key before enabling this startup gate.
+   Keep the existing VM's credentials separate and preserve all existing Vault
+   properties when adding the agent key. The whole record is imported; do not
+   put unrelated secrets here. **Populate the Paperclip key before merging:**
+   automatic sync replaces the pod, which cannot start without this property.
+   A missing Vault property fails ExternalSecret reconciliation; an empty value
+   passes extraction but is rejected by init. Secret refresh is hourly, and
+   environment changes require an authorized pod recreation after refresh.
+   A failed refresh can leave the old Secret in place; confirm synchronization
+   and the intended current key before rollout, not merely an old Ready pod.
 3. Configure private DNS for `ashely.internal.durp.info` at DMZ ingress.
    Allow infra Paperclip to reach that ingress on TCP/443. The shared DMZ
    private filter must admit its actual source/NAT address; verify from the
@@ -97,19 +113,24 @@ agent automatically.
    Ready, and `ashely-0` lands on a Hermes worker. Confirm DMZ Traefik can
    discover ready endpoints through the headless Service and the CNI enforces
    the ingress NetworkPolicy. Confirm API calls without a key return 401.
-2. In Paperclip create an agent named `Ashely` with adapter `hermes_gateway`,
+2. Confirm the existing Paperclip agent named `Ashely` uses `hermes_gateway`,
    `apiBaseUrl=https://ashely.internal.durp.info`, the new gateway key in the
    `apiKey` secret field, `sessionKeyStrategy=issue`, and
    `paperclipApiUrl=https://paperclip.internal.durp.info`. Keep insecure
    remote HTTP disabled. No database or Kubernetes API credentials are needed.
-3. Mint an agent-scoped Paperclip API key and add `PAPERCLIP_API_KEY` to
-   `kv/ashely`, preserving the two existing keys. ExternalSecrets refresh
-   hourly and env credentials load at startup; authorize a workload restart
-   after the Secret refresh. Keep this key limited to the intended company.
-4. Run the adapter environment test and a small model task with an issue
-   update. Verify callbacks resolve through normal private DNS and reach
-   Paperclip over DMZ HTTPS/443 with valid TLS and an admitted source address.
-   Confirm protected APIs still require authentication.
+3. Confirm the startup prerequisites above and the Secret refresh completed.
+   From Ashely's actual tool runtime, use its inherited `PAPERCLIP_API_KEY` to
+   request `GET /api/agents/me` over HTTPS. Verify the returned agent/company
+   match Ashely; do not print tokens or substitute the independent gateway key.
+   A key existing in Vault or a Ready health probe alone does not prove this.
+4. Run the adapter environment test and a small model task with a real saved
+   comment and issue update. Use the current Paperclip run ID from the wake in
+   `X-Paperclip-Run-Id` for mutations, not the Hermes provider run ID; do not
+   assume remote runs inject it into the process environment. Read back the
+   comment/status in Paperclip rather than trusting an agent's completion text
+   or local execution record. Verify callbacks resolve through normal private
+   DNS and reach Paperclip over DMZ HTTPS/443 with valid TLS and an admitted
+   source address. Confirm protected APIs still require authentication.
 5. Confirm model/provider access, NFS persistence of memory and skills, local
    temporary storage, and recovery after an authorized restart. Arrange
    independent share backups. Live NFS/firewall/NAT/DNS, certificate issuance,
@@ -118,6 +139,15 @@ agent automatically.
 If an earlier gateway revision was deployed, preserve the claim, keys and
 offline-consistent home before cutover. Do not mount one SQLite home from
 multiple writers, copy active WAL state, or delete PVCs to make sync succeed.
+
+## Credential regression check
+
+With Helm, Python 3 and PyYAML installed, run
+`python3 dmz/ashely/check_credentials.py` from the repo root. CI runs the same
+check: it renders the actual chart, verifies all required Vault/Secret mappings
+and runtime inheritance, and executes the rendered startup guards against dummy
+valid, missing and empty credentials without touching persistent state or APIs.
+This is not live API authentication or issue-disposition verification.
 
 Reference: [Paperclip Hermes gateway adapter](https://docs.paperclip.ing/reference/adapters/hermes-gateway/).
 
