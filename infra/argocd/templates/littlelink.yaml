@@ -16,6 +16,8 @@ spec:
     namespace: littlelink
   syncPolicy:
     automated:
+      # Retire resources before removing this Application (no cascade finalizer).
+      allowEmpty: true
       prune: true
       selfHeal: true
     syncOptions:

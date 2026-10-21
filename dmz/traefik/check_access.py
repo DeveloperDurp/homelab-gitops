@@ -72,6 +72,15 @@ args = parser.parse_args()
 source_paths = sorted(DMZ.glob("*/templates/*.yaml"))
 source_docs = list(documents(source_paths))
 check(source_docs)
+# Keep the retiring app until its empty desired state prunes the live page.
+retired = yaml.safe_load((ROOT / "infra/argocd/templates/littlelink.yaml").read_text())
+assert retired["spec"]["source"]["path"] == "dmz/littlelink"
+assert retired["spec"]["syncPolicy"]["automated"] == {
+    "allowEmpty": True, "prune": True, "selfHeal": True,
+}
+assert not list(documents((DMZ / "littlelink").rglob("*.yaml")))
+assert "links.durp.info" not in json.dumps(source_docs)
+print("PASS: LittleLink has an empty desired state with pruning enabled; links route/DNS removed")
 values = yaml.safe_load((DMZ / "traefik/values.yaml").read_text())["traefik"]
 assert values["service"]["spec"]["externalTrafficPolicy"] == "Local"
 assert values["providers"]["kubernetesIngress"]["enabled"] is False

@@ -37,7 +37,7 @@ Routes without a matching annotation are internal-only, including
 `searxng.internal`, `gitlab-old`, `freshrss`, ArgoCD, Longhorn, and management UIs.
 `garage.internal.durp.info` is private by default and additionally requires
 Authentik before proxying to Unraid's HTTP UI on port 3909; it is not the S3 API.
-There are 17 explicit public rules and 21 default-private rules in the current
+There are 16 explicit public rules and 21 default-private rules in the current
 sources. No route redundantly lists `internal-only` or selects the legacy Go chain.
 
 This is explicit configuration, not a runtime DNS-based authorization decision.
