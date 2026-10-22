@@ -8,7 +8,7 @@ gitlab-runner:
   gitlabUrl: https://gitlab.durp.info/
   unregisterRunner: false
   terminationGracePeriodSeconds: 3600
-  concurrent: 30
+  concurrent: 20
   checkInterval: 30
 
   # Runner manager; job pods have their own scheduling settings in TOML below.
@@ -48,7 +48,7 @@ gitlab-runner:
           privileged = true
           # Job resources belong in TOML; the chart ignores runners.builds.
           cpu_request = "500m"
-          cpu_limit = "2"
+          cpu_limit = "4"
           cpu_request_overwrite_max_allowed = "2"
           cpu_limit_overwrite_max_allowed = "4"
           memory_request = "1Gi"
