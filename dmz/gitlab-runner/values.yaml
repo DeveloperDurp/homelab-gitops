@@ -8,7 +8,7 @@ gitlab-runner:
   gitlabUrl: https://gitlab.durp.info/
   unregisterRunner: false
   terminationGracePeriodSeconds: 3600
-  concurrent: 20
+  concurrent: 25
   checkInterval: 30
 
   # Runner manager; job pods have their own scheduling settings in TOML below.
