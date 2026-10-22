@@ -214,6 +214,8 @@ for path in source_paths:
             continue
         old = old_routes[doc["metadata"]["name"]]
         if doc["kind"] == "IngressRouteTCP":
+            if doc["metadata"]["name"] == "durpdeploy-tcp":
+                old["spec"]["routes"][0]["services"][0]["port"] = 23187
             assert doc == old
             continue
         for a, b in zip(doc["spec"]["routes"], old["spec"]["routes"], strict=True):

@@ -45,8 +45,8 @@ traefik:
         default: true
       exposedPort: 9022
     durpdeploy:
-      port: 10943
-      exposedPort: 10943
+      port: 23187
+      exposedPort: 23187
       protocol: TCP
       expose:
         default: true

@@ -49,8 +49,8 @@ metadata:
 spec:
   ports:
     - name: tcp
-      port: 10943
-      targetPort: 10943
+      port: 23187
+      targetPort: 23187
       protocol: TCP
 
 ---
@@ -63,7 +63,7 @@ subsets:
       - ip: 192.168.21.200
     ports:
       - name: tcp
-        port: 10943
+        port: 23187
         protocol: TCP
 
 ---
@@ -78,6 +78,6 @@ spec:
     - match: HostSNI(`durpdeploy.durp.info`)
       services:
         - name: durpdeploy-tcp
-          port: 10943
+          port: 23187
   tls:
     passthrough: true
