@@ -13,7 +13,17 @@ if len(sys.argv) > 1:
     config = next(d["data"]["config.template.toml"] for d in docs
                   if d and d.get("kind") == "ConfigMap"
                   and "config.template.toml" in d.get("data", {}))
-kube = tomllib.loads(config)["runners"][0]["kubernetes"]
+runner = tomllib.loads(config)["runners"][0]
+kube = runner["kubernetes"]
+cache = runner["cache"]
+assert cache["Type"] == "s3" and cache["Shared"] is True
+assert cache["MaxUploadedArchiveSize"] == 600 * 1024 * 1024
+assert cache["s3"]["ServerAddress"] == "s3.durp.info"
+assert cache["s3"]["BucketName"] == "gitlab-runner-cache"
+assert cache["s3"]["BucketLocation"] == "garage"
+assert cache["s3"]["Insecure"] is False
+assert cache["s3"]["PathStyle"] is True
+assert values["runners"]["cache"]["secretName"] == "gitlab-runner-cache"
 assert kube["helper_image"] == (
     "harbor.durp.info/gitlab/gitlab-org/gitlab-runner/"
     "gitlab-runner-helper:x86_64-v18.0.5"
@@ -22,7 +32,7 @@ if len(sys.argv) > 1:
     manager = next(d for d in docs if d and d.get("kind") == "Deployment")
     image = manager["spec"]["template"]["spec"]["containers"][0]["image"]
     assert image.rsplit(":", 1)[1].removeprefix("alpine-") == "v18.0.5", image
-assert values["concurrent"] == 10
+assert values["concurrent"] == 25
 assert "builds" not in values["runners"]
 for prefix, cpu, memory in [("", "500m", "1Gi"), ("helper_", "100m", "128Mi"),
                             ("service_", "500m", "512Mi")]:
@@ -30,7 +40,7 @@ for prefix, cpu, memory in [("", "500m", "1Gi"), ("helper_", "100m", "128Mi"),
     assert kube[prefix + "memory_request"] == memory
     assert kube[prefix + "cpu_limit"]
     assert kube[prefix + "memory_limit"]
-assert kube["cpu_limit"] == "2" and kube["memory_limit"] == "4Gi"
+assert kube["cpu_limit"] == "4" and kube["memory_limit"] == "4Gi"
 assert kube["cpu_limit_overwrite_max_allowed"] == "4"
 assert kube["memory_limit_overwrite_max_allowed"] == "6Gi"
 terms = kube["affinity"]["pod_anti_affinity"]["preferred_during_scheduling_ignored_during_execution"]

@@ -1,0 +1,11 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-runner-cache",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "" },
+      "Expiration": { "Days": 1 },
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 1 }
+    }
+  ]
+}

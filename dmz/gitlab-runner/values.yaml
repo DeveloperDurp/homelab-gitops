@@ -38,8 +38,22 @@ gitlab-runner:
     annotations: {}
 
   runners:
+    cache:
+      secretName: gitlab-runner-cache
     config: |
       [[runners]]
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          MaxUploadedArchiveSize = 629145600
+          [runners.cache.s3]
+            ServerAddress = "s3.durp.info"
+            BucketName = "gitlab-runner-cache"
+            BucketLocation = "garage"
+            Insecure = false
+            AuthenticationType = "access-key"
+            PathStyle = true
         [runners.kubernetes]
           namespace = "{{.Release.Namespace}}"
           image = "ubuntu:22.04"
