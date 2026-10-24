@@ -13,7 +13,14 @@ renovate:
         "platform": "gitlab",
         "endpoint": "https://gitlab.durp.info/api/v4",
         "autodiscover": true,
-        "autodiscoverFilter": ["durfy/**"]
+        "autodiscoverFilter": ["durfy/**"],
+        "hostRules": [
+          {
+            "hostType": "docker",
+            "matchHost": "harbor.durp.info",
+            "allowInternal": true
+          }
+        ]
       }
     configIsSecret: true
     persistence:
