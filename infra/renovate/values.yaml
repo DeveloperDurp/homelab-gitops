@@ -1,4 +1,9 @@
 renovate:
+  image:
+    registry: harbor.durp.info
+    repository: github/renovatebot/renovate
+    tag: 44.181.1
+
   cronjob:
     schedule: "0 1 * * *"
 
