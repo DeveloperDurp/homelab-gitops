@@ -1,0 +1,18 @@
+renovate:
+  cronjob:
+    schedule: "0 1 * * *"
+
+  renovate:
+    config: |
+      {
+        "platform": "gitlab",
+        "endpoint": "https://gitlab.durp.info/api/v4",
+        "autodiscover": true,
+        "autodiscoverFilter": ["durfy/**"]
+      }
+    configIsSecret: true
+    persistence:
+      cache:
+        enabled: false
+
+  existingSecret: renovate-token

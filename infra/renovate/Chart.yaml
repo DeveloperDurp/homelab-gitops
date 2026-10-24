@@ -1,0 +1,12 @@
+apiVersion: v2
+name: renovate
+description: Self-hosted Renovate for GitLab dependency updates
+type: application
+
+version: 0.1.0
+appVersion: "46.381.1"
+
+dependencies:
+  - name: renovate
+    repository: https://docs.renovatebot.com/helm-charts
+    version: 46.381.1
